@@ -1,0 +1,6 @@
+@FlyLib.API_HostAddress = http://localhost:5232
+
+GET {{FlyLib.API_HostAddress}}/swagger/
+Accept: application/json
+
+###
