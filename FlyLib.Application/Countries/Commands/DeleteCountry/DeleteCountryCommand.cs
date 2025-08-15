@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace FlyLib.Application.Countries.Commands.DeleteCountry
 {
-    internal class DeleteCountryCommand
+    public class DeleteCountryCommand
     {
     }
 }

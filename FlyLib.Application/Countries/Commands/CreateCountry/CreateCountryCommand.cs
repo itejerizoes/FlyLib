@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using FlyLib.Application.Countries.DTOs;
+using MediatR;
 
 namespace FlyLib.Application.Countries.Commands.CreateCountry
 {
-    internal class CreateCountryCommand
-    {
-    }
+    public sealed record CreateCountryCommand(string Name, string? Iso2) : IRequest<CountryDto>;
 }

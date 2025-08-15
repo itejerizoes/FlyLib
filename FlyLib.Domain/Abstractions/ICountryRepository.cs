@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using FlyLib.Domain.Entities;
 
 namespace FlyLib.Domain.Abstractions
 {
-    internal interface ICountryRepository
+    public interface ICountryRepository : IRepository<Country>
     {
+        Task<Country?> GetByNameAsync(string name, CancellationToken ct = default);
     }
 }

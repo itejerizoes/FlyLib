@@ -1,6 +1,4 @@
 ﻿namespace FlyLib.API.Middleware
 {
-    public class ErrorResponse
-    {
-    }
+    public record ErrorResponse(int StatusCode, string Message, string? TraceId = null);
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace FlyLib.Application.Countries.Commands.UpdateCountry
 {
-    internal class UpdateCountryCommand
+    public class UpdateCountryCommand
     {
     }
 }

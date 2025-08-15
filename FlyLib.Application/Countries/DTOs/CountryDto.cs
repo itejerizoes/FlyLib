@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace FlyLib.Application.Countries.DTOs
+﻿namespace FlyLib.Application.Countries.DTOs
 {
-    internal class CountryDto
-    {
-    }
+    public sealed record CountryDto(int CountryId, string Name, string? Iso2);
 }

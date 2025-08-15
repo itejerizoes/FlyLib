@@ -1,12 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using AutoMapper;
+using FlyLib.Application.Countries.DTOs;
+using FlyLib.Domain.Abstractions;
+using FlyLib.Domain.Entities;
+using MediatR;
 
 namespace FlyLib.Application.Countries.Commands.CreateCountry
 {
-    internal class CreateCountryCommandHandler
+    public class CreateCountryCommandHandler : IRequestHandler<CreateCountryCommand, CountryDto>
     {
+        private readonly ICountryRepository _repo;
+        private readonly IUnitOfWork _uow;
+        private readonly IMapper _mapper;
+
+        public CreateCountryCommandHandler(ICountryRepository repo, IUnitOfWork uow, IMapper mapper)
+            => (_repo, _uow, _mapper) = (repo, uow, mapper);
+
+        public async Task<CountryDto> Handle(CreateCountryCommand request, CancellationToken ct)
+        {
+            var newEntity = new Country { Name = request.Name, Iso2 = request.Iso2 };
+            await _repo.AddAsync(newEntity, ct);
+            await _uow.SaveChangesAsync(ct);
+            return _mapper.Map<CountryDto>(newEntity);
+        }
     }
 }

@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using FlyLib.Application.Countries.DTOs;
+using MediatR;
 
 namespace FlyLib.Application.Countries.Queries.GetCountryById
 {
-    internal class GetCountryByIdQuery
-    {
-    }
+    public sealed record GetCountryByIdQuery(int Id) : IRequest<CountryDto?>;
 }
