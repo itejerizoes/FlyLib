@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using FlyLib.Application.Provinces.DTOs;
+using MediatR;
 
 namespace FlyLib.Application.Provinces.Commands.CreateProvince
 {
-    internal class CreateProvinceCommand
-    {
-    }
+    public sealed record CreateProvinceCommand(string Name, int CountryId) : IRequest<ProvinceDto>;
 }

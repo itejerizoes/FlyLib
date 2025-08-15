@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using FlyLib.Application.UserVisitedProvinces.DTOs;
+using MediatR;
 
 namespace FlyLib.Application.UserVisitedProvinces.Queries.GetUserVisitedProvinceById
 {
-    internal class GetUserVisitedProvinceByIdQuery
-    {
-    }
+    public sealed record GetUserVisitedProvinceByIdQuery(int Id) : IRequest<UserVisitedProvinceDto?>;
 }

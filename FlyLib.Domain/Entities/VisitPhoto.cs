@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace FlyLib.Domain.Entities
+﻿namespace FlyLib.Domain.Entities
 {
-    internal class VisitPhoto
+    public class VisitPhoto
     {
+        public int VisitPhotoId { get; set; }
+        public string PhotoUrl { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public int UserVisitedProvinceId { get; set; }
+        public UserVisitedProvince? UserVisitedProvince { get; set; }
     }
 }

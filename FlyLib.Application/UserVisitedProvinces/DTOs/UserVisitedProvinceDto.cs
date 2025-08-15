@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using FlyLib.Domain.Entities;
 
 namespace FlyLib.Application.UserVisitedProvinces.DTOs
 {
-    internal class UserVisitedProvinceDto
-    {
-    }
+    public sealed record UserVisitedProvinceDto(int Id, string UserId, int ProvinceId, ICollection<VisitPhoto> VisitPhotos);
 }

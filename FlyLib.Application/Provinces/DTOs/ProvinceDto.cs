@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace FlyLib.Application.Provinces.DTOs
+﻿namespace FlyLib.Application.Provinces.DTOs
 {
-    internal class ProvinceDto
-    {
-    }
+    public sealed record ProvinceDto(int ProvinceId, string Name, int CountryId);
 }

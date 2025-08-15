@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using FlyLib.Application.Users.DTOs;
+using MediatR;
 
 namespace FlyLib.Application.Users.Commands.CreateUser
 {
-    internal class CreateUserCommand
-    {
-    }
+    public sealed record CreateUserCommand(string Email, string? DisplayName) : IRequest<UserDto>;
 }

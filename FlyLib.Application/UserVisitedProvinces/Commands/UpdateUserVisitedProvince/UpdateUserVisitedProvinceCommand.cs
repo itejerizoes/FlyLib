@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using FlyLib.Domain.Entities;
+using MediatR;
 
 namespace FlyLib.Application.UserVisitedProvinces.Commands.UpdateUserVisitedProvince
 {
-    internal class UpdateUserVisitedProvinceCommand
-    {
-    }
+    public sealed record UpdateUserVisitedProvinceCommand(int Id, string UserId, int ProvinceId, ICollection<VisitPhoto> VisitPhotos) : IRequest<Unit>;
 }

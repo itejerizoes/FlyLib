@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using FlyLib.Application.Countries.DTOs;
+using MediatR;
 
 namespace FlyLib.Application.Countries.Commands.UpdateCountry
 {
-    internal class UpdateCountryCommand
-    {
-    }
+    public sealed record UpdateCountryCommand(int CountryId, string Name, string? Iso2) : IRequest<Unit>;
 }

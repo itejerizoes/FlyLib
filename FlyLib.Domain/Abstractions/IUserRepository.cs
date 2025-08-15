@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using FlyLib.Domain.Entities;
 
 namespace FlyLib.Domain.Abstractions
 {
-    internal interface IUserRepository
+    public interface IUserRepository : IRepository<User>
     {
     }
 }

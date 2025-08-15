@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MediatR;
 
 namespace FlyLib.Application.Provinces.Commands.UpdateProvince
 {
-    internal class UpdateProvinceCommand
-    {
-    }
+    public sealed record UpdateProvinceCommand(int ProvinceId, string Name, int CountryId) : IRequest<Unit>;
 }

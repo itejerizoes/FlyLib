@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace FlyLib.Domain.Entities
+﻿namespace FlyLib.Domain.Entities
 {
-    internal class Province
+    public class Province
     {
+        public int ProvinceId { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public int CountryId { get; set; }
+        public Country? Country { get; set; }
+        public ICollection<UserVisitedProvince> UserVisitedProvinces { get; set; } = new List<UserVisitedProvince>();
     }
 }
