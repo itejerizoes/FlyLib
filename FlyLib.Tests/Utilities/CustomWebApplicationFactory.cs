@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.AspNetCore.Authentication;
+using FlyLib.Infrastructure.Persistence;
 
 namespace TestFlyLibrary.Tests.Utilities;
 
