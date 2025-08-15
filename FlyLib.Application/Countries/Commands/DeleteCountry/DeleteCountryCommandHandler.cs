@@ -1,12 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using FlyLib.Domain.Abstractions;
+using MediatR;
 
 namespace FlyLib.Application.Countries.Commands.DeleteCountry
 {
-    internal class DeleteCountryCommandHandler
+    public class DeleteCountryCommandHandler : IRequestHandler<DeleteCountryCommand, Unit>
     {
+        private readonly ICountryRepository _repo;
+        private readonly IUnitOfWork _uow;
+
+        public DeleteCountryCommandHandler(ICountryRepository repo, IUnitOfWork uow)
+            => (_repo, _uow) = (repo, uow);
+
+        public async Task<Unit> Handle(DeleteCountryCommand request, CancellationToken ct)
+        {
+            await _repo.DeleteAsync(request.CountryId, ct);
+            await _uow.SaveChangesAsync(ct);
+            return Unit.Value;
+        }
     }
 }

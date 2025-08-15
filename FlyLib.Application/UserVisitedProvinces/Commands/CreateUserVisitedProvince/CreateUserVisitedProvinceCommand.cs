@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using FlyLib.Application.UserVisitedProvinces.DTOs;
+using FlyLib.Domain.Entities;
+using MediatR;
 
 namespace FlyLib.Application.UserVisitedProvinces.Commands.CreateUserVisitedProvince
 {
-    internal class CreateUserVisitedProvinceCommand
-    {
-    }
+    public sealed record CreateUserVisitedProvinceCommand(string UserId, int ProvinceId, ICollection<VisitPhoto> VisitPhotos) : IRequest<UserVisitedProvinceDto>;
 }

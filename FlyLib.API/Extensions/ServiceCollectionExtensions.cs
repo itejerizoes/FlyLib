@@ -25,10 +25,13 @@ namespace FlyLib.API.Extensions
             // UoW + Repos
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<ICountryRepository, CountryRepository>();
-            // AddScoped<IProvinceRepository, ProvinceRepository>(); etc…
+            services.AddScoped<IProvinceRepository, ProvinceRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IUserVisitedProvinceRepository, UserVisitedProvinceRepository>();
+            services.AddScoped<IVisitPhotoRepository, VisitPhotoRepository>();
 
             // MediatR + Behaviors
-            services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(MappingProfile).Assembly));
+            services.AddMediatR(typeof(Program).Assembly);
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
 
             // AutoMapper

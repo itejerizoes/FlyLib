@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using FlyLib.Application.Users.DTOs;
+using MediatR;
 
 namespace FlyLib.Application.Users.Queries.GetAllUsers
 {
-    internal class GetAllUsersQuery
-    {
-    }
+    public sealed record GetAllUsersQuery() : IRequest<IEnumerable<UserDto>>;
 }

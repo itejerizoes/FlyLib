@@ -1,12 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using FluentValidation;
 
 namespace FlyLib.Application.UserVisitedProvinces.Commands.CreateUserVisitedProvince
 {
-    internal class CreateUserVisitedProvinceCommandValidator
+    public class CreateUserVisitedProvinceCommandValidator : AbstractValidator<CreateUserVisitedProvinceCommand>
     {
+        public CreateUserVisitedProvinceCommandValidator()
+        {
+            RuleFor(x => x.UserId).NotEmpty();
+            RuleFor(x => x.ProvinceId).GreaterThan(0);
+            RuleFor(x => x.VisitPhotos).NotNull();
+        }
     }
 }

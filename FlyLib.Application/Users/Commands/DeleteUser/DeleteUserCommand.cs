@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MediatR;
 
 namespace FlyLib.Application.Users.Commands.DeleteUser
 {
-    internal class DeleteUserCommand
-    {
-    }
+    public sealed record DeleteUserCommand(string Id) : IRequest<Unit>;
 }

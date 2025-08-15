@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace FlyLib.Application.Users.DTOs
+﻿namespace FlyLib.Application.Users.DTOs
 {
-    internal class UserDto
-    {
-    }
+    public sealed record UserDto(string Id, string Email, string? DisplayName);
 }

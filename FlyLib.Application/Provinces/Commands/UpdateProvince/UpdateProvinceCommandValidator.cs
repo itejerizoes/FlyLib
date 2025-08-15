@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿using FluentValidation;
 namespace FlyLib.Application.Provinces.Commands.UpdateProvince
 {
-    internal class UpdateProvinceCommandValidator
+    public class UpdateProvinceCommandValidator : AbstractValidator<UpdateProvinceCommand>
     {
+        public UpdateProvinceCommandValidator()
+        {
+            RuleFor(x => x.ProvinceId).GreaterThan(0);
+            RuleFor(x => x.Name).NotEmpty().MaximumLength(100);
+            RuleFor(x => x.CountryId).GreaterThan(0);
+        }
     }
 }

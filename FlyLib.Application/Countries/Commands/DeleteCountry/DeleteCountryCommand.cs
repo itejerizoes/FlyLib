@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MediatR;
 
 namespace FlyLib.Application.Countries.Commands.DeleteCountry
 {
-    public class DeleteCountryCommand
-    {
-    }
+    public sealed record DeleteCountryCommand(int CountryId) : IRequest<Unit>;
 }

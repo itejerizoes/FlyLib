@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MediatR;
 
 namespace FlyLib.Application.UserVisitedProvinces.Commands.DeleteUserVisitedProvince
 {
-    internal class DeleteUserVisitedProvinceCommand
-    {
-    }
+    public sealed record DeleteUserVisitedProvinceCommand(int Id) : IRequest<Unit>;
 }

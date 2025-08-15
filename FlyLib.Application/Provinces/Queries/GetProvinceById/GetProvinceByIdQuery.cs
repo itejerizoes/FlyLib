@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using FlyLib.Application.Provinces.DTOs;
+using MediatR;
 
 namespace FlyLib.Application.Provinces.Queries.GetProvinceById
 {
-    internal class GetProvinceByIdQuery
-    {
-    }
+    public sealed record GetProvinceByIdQuery(int ProvinceId) : IRequest<ProvinceDto?>;
 }

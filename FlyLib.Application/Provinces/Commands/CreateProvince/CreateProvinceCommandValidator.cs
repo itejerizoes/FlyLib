@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using FluentValidation;
 
 namespace FlyLib.Application.Provinces.Commands.CreateProvince
 {
-    internal class CreateProvinceCommandValidator
+    public class CreateProvinceCommandValidator : AbstractValidator<CreateProvinceCommand>
     {
+        public CreateProvinceCommandValidator()
+        {
+            RuleFor(x => x.Name).NotEmpty().MaximumLength(100);
+            RuleFor(x => x.CountryId).GreaterThan(0);
+        }
     }
 }

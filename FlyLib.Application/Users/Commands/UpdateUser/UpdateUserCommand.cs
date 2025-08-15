@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MediatR;
 
 namespace FlyLib.Application.Users.Commands.UpdateUser
 {
-    internal class UpdateUserCommand
-    {
-    }
+    public sealed record UpdateUserCommand(string Id, string Email, string? DisplayName) : IRequest<Unit>;
 }

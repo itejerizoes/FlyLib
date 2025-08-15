@@ -2,7 +2,7 @@
 using FlyLib.Application.Countries.DTOs;
 using FlyLib.Application.Users.DTOs;
 using FlyLib.Application.UserVisitedProvinces.DTOs;
-using FlyLib.Application.VisitPhoto.DTOs;
+using FlyLib.Application.VisitPhotos.DTOs;
 using FlyLib.Domain.Entities;
 
 namespace FlyLib.Application.Mapping
