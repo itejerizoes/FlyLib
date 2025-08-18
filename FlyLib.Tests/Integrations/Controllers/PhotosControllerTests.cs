@@ -1,7 +1,7 @@
 ﻿using FluentAssertions;
 using FlyLib.API.DTOs.v1.Photos.Requests;
 using FlyLib.API.DTOs.v1.Photos.Responses;
-using Microsoft.VisualStudio.TestPlatform.TestHost;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -19,6 +19,7 @@ namespace FlyLib.Tests.Integrations.Controllers
 
         public PhotosControllerTests(CustomWebApplicationFactory<Program> factory)
         {
+            Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Test");
             _client = factory.CreateClient();
         }
 

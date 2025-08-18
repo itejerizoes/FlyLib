@@ -87,7 +87,6 @@ namespace FlyLib.API.Controllers.v1
             return CreatedAtAction(nameof(GetById), new { id = created.CountryId }, response);
         }
 
-
         /// <summary>
         /// Actualizar un país.
         /// </summary>
@@ -103,7 +102,6 @@ namespace FlyLib.API.Controllers.v1
             await _mediator.Send(cmd);
             return NoContent();
         }
-
 
         /// <summary>
         /// Eliminar un país.

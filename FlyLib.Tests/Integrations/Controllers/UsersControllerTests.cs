@@ -1,7 +1,7 @@
 ﻿using FluentAssertions;
 using FlyLib.API.DTOs.v1.Users.Requests;
 using FlyLib.API.DTOs.v1.Users.Responses;
-using Microsoft.VisualStudio.TestPlatform.TestHost;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
@@ -18,6 +18,7 @@ namespace FlyLib.Tests.Integrations.Controllers
 
         public UsersControllerTests(CustomWebApplicationFactory<Program> factory)
         {
+            Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Test");
             _client = factory.CreateClient();
         }
 

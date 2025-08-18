@@ -3,7 +3,7 @@ using FlyLib.API.DTOs.v1.Countries.Requests;
 using FlyLib.API.DTOs.v1.Visited.Requests;
 using FlyLib.API.DTOs.v1.Visited.Responses;
 using FlyLib.Domain.Entities;
-using Microsoft.VisualStudio.TestPlatform.TestHost;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -21,6 +21,7 @@ namespace FlyLib.Tests.Integrations.Controllers
 
         public VisitedsControllerTests(CustomWebApplicationFactory<Program> factory)
         {
+            Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Test");
             _client = factory.CreateClient();
         }
 

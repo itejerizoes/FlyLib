@@ -1,5 +1,4 @@
-﻿using Azure.Storage.Blobs;
-using FluentValidation;
+﻿using FluentValidation;
 using FluentValidation.AspNetCore;
 using FlyLib.API.Mappings.v1;
 using FlyLib.API.Mappings.v2;
@@ -12,7 +11,6 @@ using FlyLib.Infrastructure.Identity.Jwt;
 using FlyLib.Infrastructure.Persistence;
 using FlyLib.Infrastructure.Repositories;
 using FlyLib.Infrastructure.Services;
-using FlyLib.Infrastructure.Storages;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -25,24 +23,8 @@ namespace FlyLib.API.Extensions
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddFlyLibraryServices(this IServiceCollection services, IConfiguration config, BlobServiceClient? blobClient = null)
+        public static IServiceCollection AddFlyLibraryServices(this IServiceCollection services, IConfiguration config, bool useInMemory = false)
         {
-            // DbContext
-            services.AddDbContext<FlyLibDbContext>(opt =>
-            {
-                opt.UseSqlServer(config.GetConnectionString("DefaultConnection"));
-            });
-
-            // Inyección de BlobServiceClient: si se pasa uno, se usa, sino se crea con la config
-            if (blobClient == null)
-            {
-                var connString = config.GetConnectionString("AzureBlobStorage") ?? throw new InvalidOperationException("Falta la cadena de AzureBlobStorage");
-                blobClient = new BlobServiceClient(connString);
-            }
-
-            services.AddSingleton(blobClient);
-            services.AddScoped<BlobStorageService>();
-
             // UoW + Repos
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<ICountryRepository, CountryRepository>();
@@ -83,44 +65,42 @@ namespace FlyLib.API.Extensions
             // Middleware
             services.AddTransient<GlobalExceptionMiddleware>();
 
-            // Auth (si corresponde): AddAuthentication().AddJwtBearer(...) + Roles
-            // Configuración de Identity
-            services.AddIdentity<User, IdentityRole>()
-                .AddEntityFrameworkStores<FlyLibDbContext>()
-                .AddDefaultTokenProviders();
+            if (!useInMemory)
+            {
+                services.AddIdentity<User, IdentityRole>()
+                    .AddEntityFrameworkStores<FlyLibDbContext>()
+                    .AddDefaultTokenProviders();
 
-            var jwtKey = config["Jwt:Key"] ?? "thoifel_marlo_123+";
-            var jwtIssuer = config["Jwt:Issuer"] ?? "TestFlyLibrary";
-            var jwtAudience = config["Jwt:Audience"] ?? "TestFlyClient";
+                var jwtKey = config["Jwt:Key"] ?? "thoifel_marlo_123+";
+                var jwtIssuer = config["Jwt:Issuer"] ?? "TestFlyLibrary";
+                var jwtAudience = config["Jwt:Audience"] ?? "TestFlyClient";
 
-            services.AddAuthentication("Bearer")
-                .AddJwtBearer("Bearer", options =>
-                {
-                    options.TokenValidationParameters = new TokenValidationParameters
+                services.AddAuthentication("Bearer")
+                    .AddJwtBearer("Bearer", options =>
                     {
-                        ValidateIssuer = true,
-                        ValidateAudience = false,
-                        ValidateLifetime = true,
-                        ValidateIssuerSigningKey = true,
-                        ValidIssuer = jwtIssuer,
-                        ValidAudience = jwtAudience,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
-                    };
-                })
-                .AddGoogle("Google", options =>
-                {
-                    options.ClientId = config["Authentication:Google:ClientId"]!;
-                    options.ClientSecret = config["Authentication:Google:ClientSecret"]!;
-                    options.SignInScheme = IdentityConstants.ExternalScheme;
-                })
-                .AddMicrosoftAccount("Microsoft", options =>
-                {
-                    options.ClientId = config["Authentication:Microsoft:ClientId"]!;
-                    options.ClientSecret = config["Authentication:Microsoft:ClientSecret"]!;
-                });
-
-            //Health Checks
-            services.AddHealthChecks().AddDbContextCheck<FlyLibDbContext>("Database", tags: new[] { "ready" });
+                        options.TokenValidationParameters = new TokenValidationParameters
+                        {
+                            ValidateIssuer = true,
+                            ValidateAudience = false,
+                            ValidateLifetime = true,
+                            ValidateIssuerSigningKey = true,
+                            ValidIssuer = jwtIssuer,
+                            ValidAudience = jwtAudience,
+                            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+                        };
+                    })
+                    .AddGoogle("Google", options =>
+                    {
+                        options.ClientId = config["Authentication:Google:ClientId"]!;
+                        options.ClientSecret = config["Authentication:Google:ClientSecret"]!;
+                        options.SignInScheme = IdentityConstants.ExternalScheme;
+                    })
+                    .AddMicrosoftAccount("Microsoft", options =>
+                    {
+                        options.ClientId = config["Authentication:Microsoft:ClientId"]!;
+                        options.ClientSecret = config["Authentication:Microsoft:ClientSecret"]!;
+                    });
+            }
 
             //CORS
             services.AddCors(options =>
