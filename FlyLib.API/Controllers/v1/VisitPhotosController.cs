@@ -28,11 +28,14 @@ namespace FlyLib.API.Controllers.v2
     {
         private readonly IMediator _mediator;
         private readonly IMapper _mapper;
+        private readonly BlobStorageService _blobStorageService;
 
-        public VisitPhotosController(IMediator mediator, IMapper mapper)
+
+        public VisitPhotosController(IMediator mediator, IMapper mapper, BlobStorageService blobStorageService)
         {
             _mediator = mediator;
             _mapper = mapper;
+            _blobStorageService = blobStorageService;
         }
 
         /// <summary>
@@ -150,6 +153,52 @@ namespace FlyLib.API.Controllers.v2
 
             var response = _mapper.Map<VisitPhotoResponseV1>(created);
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, response);
+        }
+
+        /// <summary>
+        /// Genera una URL SAS para subir una imagen directamente a Azure Blob Storage.
+        /// </summary>
+        [Authorize(Roles = $"{AppRoles.Admin},{AppRoles.User}")]
+        [HttpPost("sign-upload")]
+        [ProducesResponseType(typeof(object), 200)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> SignUpload([FromBody] SignUploadRequestV1 request)
+        {
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
+            var ext = Path.GetExtension(request.FileName).ToLowerInvariant();
+            if (!allowedExtensions.Contains(ext))
+                return BadRequest("Formato de imagen no permitido. Solo JPG y PNG.");
+
+            var userName = User.Identity?.Name ?? "unknown";
+            var provinceName = string.IsNullOrWhiteSpace(request.ProvinceName) ? "provincia" : request.ProvinceName.Trim().Replace(" ", "_");
+
+            // Prefijo para buscar blobs existentes
+            var prefix = $"{userName}_{provinceName}_";
+            int maxSeq = 0;
+
+            var containerClient = _blobStorageService.GetContainerClient("visitphotos");
+            await foreach (var blobItem in containerClient.GetBlobsAsync(prefix: prefix))
+            {
+                var name = blobItem.Name;
+                var seqStart = prefix.Length;
+                var seqEnd = name.IndexOf('.', seqStart);
+                if (seqEnd > seqStart)
+                {
+                    var seqPart = name.Substring(seqStart, seqEnd - seqStart);
+                    if (int.TryParse(seqPart, out int seq))
+                    {
+                        if (seq > maxSeq) maxSeq = seq;
+                    }
+                }
+            }
+
+            var nextSeq = maxSeq + 1;
+            var generatedFileName = $"{userName}_{provinceName}_{nextSeq:D4}{ext}";
+
+            var sasUrl = await _blobStorageService.GenerateUploadSasUrlAsync(
+                generatedFileName, "visitphotos", TimeSpan.FromMinutes(10));
+
+            return Ok(new { uploadUrl = sasUrl, fileName = generatedFileName });
         }
     }
 }
