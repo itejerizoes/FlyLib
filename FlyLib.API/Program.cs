@@ -45,6 +45,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCorrelationId();
+app.UseCors("FrontendCors");
+app.UseRateLimiter();
 
 app.UseHttpsRedirection();
 
