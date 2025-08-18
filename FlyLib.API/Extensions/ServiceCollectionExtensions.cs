@@ -103,6 +103,9 @@ namespace FlyLib.API.Extensions
                     options.ClientSecret = config["Authentication:Microsoft:ClientSecret"]!;
                 });
 
+            //Health Checks
+            services.AddHealthChecks().AddDbContextCheck<FlyLibDbContext>("Database", tags: new[] { "ready" });
+
             return services;
         }
     }

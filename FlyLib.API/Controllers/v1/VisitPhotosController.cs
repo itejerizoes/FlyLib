@@ -97,7 +97,7 @@ namespace FlyLib.API.Controllers.v2
         /// Eliminar una visit photo.
         /// </summary>
         [Authorize(Roles = $"{AppRoles.Admin},{AppRoles.User}")]
-        [HttpDelete("{id:string}")]
+        [HttpDelete("{id:int}")]
         [ProducesResponseType(204)]
         public async Task<IActionResult> Delete(int id)
         {
