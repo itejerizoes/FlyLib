@@ -7,9 +7,9 @@ using FlyLib.Domain.Entities;
 
 namespace FlyLib.Application.Mapping
 {
-    public class MappingProfile : Profile
+    public class MappingProfileApplication : Profile
     {
-        public MappingProfile()
+        public MappingProfileApplication()
         {
             CreateMap<Country, CountryDto>();
             CreateMap<User, UserDto>();

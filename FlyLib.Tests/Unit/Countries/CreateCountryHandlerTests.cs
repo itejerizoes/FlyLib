@@ -16,7 +16,7 @@ namespace FlyLib.Tests.Unit.Countries
         [Fact]
         public async Task Creates_country_ok()
         {
-            var mapper = new MapperConfiguration(cfg => cfg.AddProfile<MappingProfile>()).CreateMapper();
+            var mapper = new MapperConfiguration(cfg => cfg.AddProfile<MappingProfileApplication>()).CreateMapper();
             var repo = new Mock<ICountryRepository>();
             var uow = new Mock<IUnitOfWork>();
 

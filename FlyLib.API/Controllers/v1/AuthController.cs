@@ -1,4 +1,4 @@
-﻿namespace FlyLib.API.Controllers
+﻿namespace FlyLib.API.Controllers.v1
 {
     public class AuthController
     {
