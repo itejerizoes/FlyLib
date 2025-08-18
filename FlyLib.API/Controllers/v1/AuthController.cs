@@ -1,4 +1,5 @@
-﻿using FlyLib.API.DTOs.v1.Auth.Request;
+﻿using Azure.Core;
+using FlyLib.API.DTOs.v1.Auth.Request;
 using FlyLib.Domain.Abstractions;
 using FlyLib.Domain.Entities;
 using FlyLib.Infrastructure.Identity.Jwt;
@@ -54,7 +55,7 @@ namespace FlyLib.API.Controllers.v1
             var user = await _userManager.FindByEmailAsync(email);
             if (user == null)
             {
-                user = new User
+                user = new User(name)
                 {
                     UserName = email,
                     Email = email,
