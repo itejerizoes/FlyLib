@@ -8,6 +8,7 @@ using FlyLib.Application.Common.Behaviors;
 using FlyLib.Application.Mapping;
 using FlyLib.Domain.Abstractions;
 using FlyLib.Domain.Entities;
+using FlyLib.Infrastructure.Identity.Jwt;
 using FlyLib.Infrastructure.Persistence;
 using FlyLib.Infrastructure.Repositories;
 using FlyLib.Infrastructure.Services;
@@ -39,6 +40,8 @@ namespace FlyLib.API.Extensions
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IUserVisitedProvinceRepository, UserVisitedProvinceRepository>();
             services.AddScoped<IVisitPhotoRepository, VisitPhotoRepository>();
+            services.AddScoped<ITokenService, TokenService>();
+            services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 
             // MediatR + Behaviors
             services.AddMediatR(typeof(Program).Assembly);
