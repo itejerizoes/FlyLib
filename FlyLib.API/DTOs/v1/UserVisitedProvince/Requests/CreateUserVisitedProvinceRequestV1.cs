@@ -2,5 +2,5 @@
 
 namespace FlyLib.API.DTOs.v1.UserVisitedProvince.Requests
 {
-    public record CreateUserVisitedProvinceRequestV1(string UserId, int ProvinceId, ICollection<VisitPhoto> VisitPhotos);
+    public record CreateUserVisitedProvinceRequestV1(string UserId, int ProvinceId, ICollection<Domain.Entities.VisitPhoto> VisitPhotos);
 }

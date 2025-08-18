@@ -53,7 +53,7 @@ namespace FlyLib.API.Controllers.v2
         [HttpGet("{id:int}")]
         [ProducesResponseType(typeof(VisitPhotoResponseV1), 200)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> GetById(string id)
+        public async Task<IActionResult> GetById(int id)
         {
             var result = await _mediator.Send(new GetVisitPhotoByIdQuery(id));
             if (result is null) return NotFound();
