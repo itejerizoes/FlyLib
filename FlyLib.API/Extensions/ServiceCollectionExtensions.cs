@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using Azure.Storage.Blobs;
+using FluentValidation;
 using FluentValidation.AspNetCore;
 using FlyLib.API.Mappings.v1;
 using FlyLib.API.Mappings.v2;
@@ -10,6 +11,7 @@ using FlyLib.Domain.Entities;
 using FlyLib.Infrastructure.Persistence;
 using FlyLib.Infrastructure.Repositories;
 using FlyLib.Infrastructure.Services;
+using FlyLib.Infrastructure.Storages;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -133,6 +135,10 @@ namespace FlyLib.API.Extensions
                         }));
                 options.RejectionStatusCode = 429;
             });
+
+            //Azure Storage Blobs
+            services.AddSingleton(new BlobServiceClient(config.GetConnectionString("AzureBlobStorage")));
+            services.AddScoped<BlobStorageService>();
 
             return services;
         }
