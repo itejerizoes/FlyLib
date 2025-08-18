@@ -43,7 +43,7 @@ namespace FlyLib.API.Controllers.v1
         /// Obtener un usuario por su Id.
         /// </summary>
         [Authorize(Roles = $"{AppRoles.Admin},{AppRoles.User}")]
-        [HttpGet("{id:string}")]
+        [HttpGet("{id}")]
         [ProducesResponseType(typeof(UserResponseV1), 200)]
         [ProducesResponseType(404)]
         public async Task<IActionResult> GetById(string id)
@@ -74,7 +74,7 @@ namespace FlyLib.API.Controllers.v1
         /// Actualizar un usuario existente.
         /// </summary>
         [Authorize(Roles = AppRoles.Admin)]
-        [HttpPut("{id:string}")]
+        [HttpPut("{id}")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
         public async Task<IActionResult> Update(string id, [FromBody] UpdateUserRequestV1 request)
@@ -90,7 +90,7 @@ namespace FlyLib.API.Controllers.v1
         /// Eliminar un usuario.
         /// </summary>
         [Authorize(Roles = AppRoles.Admin)]
-        [HttpDelete("{id:string}")]
+        [HttpDelete("{id}")]
         [ProducesResponseType(204)]
         public async Task<IActionResult> Delete(string id)
         {

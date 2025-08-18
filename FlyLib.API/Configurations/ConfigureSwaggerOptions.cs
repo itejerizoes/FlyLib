@@ -22,8 +22,20 @@ namespace FlyLib.API.Configurations
                 {
                     Title = "FlyLib API",
                     Version = description.ApiVersion.ToString(),
-                    Description = "API de gestión de viajes y fotos con soporte de versionado"
+                    Description = "API de gestión de viajes y fotos con soporte de versionado",
+                    Contact = new OpenApiContact
+                    {
+                        Name = "Ignacio Tejerizo",
+                        Email = "ignacio.tejerizo.es@gmail.com",
+                        Url = new Uri("https://github.com/itejerizoes/FlyLib")
+                    }
                 });
+
+                // Incluir comentarios de XML para ejemplos y docs
+                var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                if (File.Exists(xmlPath))
+                    options.IncludeXmlComments(xmlPath);
             }
         }
     }
