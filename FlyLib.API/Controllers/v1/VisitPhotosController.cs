@@ -14,6 +14,7 @@ using FlyLib.Application.VisitPhotos.Commands.DeleteVisitPhoto;
 using FlyLib.Application.VisitPhotos.Commands.UpdateVisitPhoto;
 using FlyLib.Application.VisitPhotos.Queries.GetAllVisitPhotos;
 using FlyLib.Application.VisitPhotos.Queries.GetVisitPhotoById;
+using FlyLib.Infrastructure.Storages;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -103,6 +104,52 @@ namespace FlyLib.API.Controllers.v2
         {
             await _mediator.Send(new DeleteVisitPhotoCommand(id));
             return NoContent();
+        }
+
+        [Authorize(Roles = $"{AppRoles.Admin},{AppRoles.User}")]
+        [HttpPost("upload")]
+        [ProducesResponseType(typeof(string), 201)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> UploadImage([FromForm] IFormFile file, [FromServices] BlobStorageService blobService)
+        {
+            // Validación de formato y tamaño
+            var allowedTypes = new[] { "image/jpeg", "image/png" };
+            if (file == null || !allowedTypes.Contains(file.ContentType))
+                return BadRequest("Formato de imagen no permitido. Solo JPEG y PNG.");
+
+            if (file.Length > 2 * 1024 * 1024) // 2MB
+                return BadRequest("El tamaño máximo permitido es 2MB.");
+
+            var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+            var url = await blobService.UploadAsync(file.OpenReadStream(), fileName, "visitphotos");
+
+            // Aquí solo devuelves la URL, pero podrías guardar en BD usando tu flujo habitual
+            return Created(url, new { url });
+        }
+
+        [Authorize(Roles = $"{AppRoles.Admin},{AppRoles.User}")]
+        [HttpPost("upload-and-save")]
+        [ProducesResponseType(typeof(VisitPhotoResponseV1), 201)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> UploadAndSave([FromForm] IFormFile file, [FromForm] int userVisitedProvinceId, [FromServices] BlobStorageService blobService)
+        {
+            var allowedTypes = new[] { "image/jpeg", "image/png" };
+            if (file == null || !allowedTypes.Contains(file.ContentType))
+                return BadRequest("Formato de imagen no permitido. Solo JPEG y PNG.");
+
+            if (file.Length > 2 * 1024 * 1024) // 2MB
+                return BadRequest("El tamaño máximo permitido es 2MB.");
+
+            var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+            var url = await blobService.UploadAsync(file.OpenReadStream(), fileName, "visitphotos");
+
+            var createRequest = new CreateVisitPhotoRequestV1(url, "Upload", userVisitedProvinceId);
+
+            var cmd = _mapper.Map<CreateVisitPhotoCommand>(createRequest);
+            var created = await _mediator.Send(cmd);
+
+            var response = _mapper.Map<VisitPhotoResponseV1>(created);
+            return CreatedAtAction(nameof(GetById), new { id = created.Id }, response);
         }
     }
 }
