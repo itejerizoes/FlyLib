@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Text.Json;
 
@@ -20,17 +21,17 @@ namespace FlyLib.API.Middleware
 
                 if (context.Response.StatusCode == (int)HttpStatusCode.NotFound)
                 {
-                    await HandleExceptionAsync(context, HttpStatusCode.NotFound, "Recurso no encontrado.");
+                    await WriteProblemDetailsAsync(context, HttpStatusCode.NotFound, "Recurso no encontrado.");
                 }
                 else if (context.Response.StatusCode == (int)HttpStatusCode.Forbidden)
                 {
-                    await HandleExceptionAsync(context, HttpStatusCode.Forbidden, "Acceso denegado.");
+                    await WriteProblemDetailsAsync(context, HttpStatusCode.Forbidden, "Acceso denegado.");
                 }
             }
             catch (ValidationException ex)
             {
                 _logger.LogWarning(ex, "Error de validación en {Path} [{Method}]", context.Request.Path, context.Request.Method);
-                context.Response.ContentType = "application/json";
+                context.Response.ContentType = "application/problem+json";
                 context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
 
                 var errors = ex.Errors
@@ -40,14 +41,15 @@ namespace FlyLib.API.Middleware
                         g => g.Select(e => e.ErrorMessage).ToArray()
                     );
 
-                var validationResponse = new
+                var problemDetails = new ValidationProblemDetails(errors)
                 {
-                    statusCode = context.Response.StatusCode,
-                    message = "Error de validación.",
-                    details = errors
+                    Status = context.Response.StatusCode,
+                    Title = "Error de validación.",
+                    Detail = "Uno o más errores de validación ocurrieron.",
+                    Instance = context.Request.Path
                 };
 
-                await context.Response.WriteAsync(JsonSerializer.Serialize(validationResponse));
+                await context.Response.WriteAsync(JsonSerializer.Serialize(problemDetails));
             }
             catch (Exception ex)
             {
@@ -57,26 +59,33 @@ namespace FlyLib.API.Middleware
 
                 _logger.LogError(ex, "Excepción en {Method} {Path} | Headers: {Headers}", method, path, headers);
 
-                await HandleExceptionAsync(context, HttpStatusCode.InternalServerError,
+                await WriteProblemDetailsAsync(
+                    context,
+                    HttpStatusCode.InternalServerError,
                     _env.IsDevelopment() ? ex.Message : "Ocurrió un error inesperado.",
-                    _env.IsDevelopment() ? ex.StackTrace : null);
+                    _env.IsDevelopment() ? ex.StackTrace : null
+                );
             }
         }
 
-        private async Task HandleExceptionAsync(HttpContext context, HttpStatusCode statusCode, string message, string? traceId = null)
+        private async Task WriteProblemDetailsAsync(HttpContext context, HttpStatusCode statusCode, string title, string? detail = null)
         {
-            context.Response.ContentType = "application/json";
+            context.Response.ContentType = "application/problem+json";
             context.Response.StatusCode = (int)statusCode;
 
-            var response = new
+            var problemDetails = new ProblemDetails
             {
-                StatusCode = context.Response.StatusCode,
-                Message = message,
-                TraceId = traceId
+                Status = context.Response.StatusCode,
+                Title = title,
+                Detail = detail,
+                Instance = context.Request.Path
             };
 
+            // Puedes agregar un traceId para correlación si lo deseas
+            problemDetails.Extensions["traceId"] = context.TraceIdentifier;
+
             var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-            var json = JsonSerializer.Serialize(response, options);
+            var json = JsonSerializer.Serialize(problemDetails, options);
 
             await context.Response.WriteAsync(json);
         }
