@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Threading.RateLimiting;
 
 namespace FlyLib.API.Extensions
 {
@@ -105,6 +106,33 @@ namespace FlyLib.API.Extensions
 
             //Health Checks
             services.AddHealthChecks().AddDbContextCheck<FlyLibDbContext>("Database", tags: new[] { "ready" });
+
+            //CORS
+            services.AddCors(options =>
+            {
+                options.AddPolicy("FrontendCors", policy =>
+                {
+                    policy.WithOrigins("https://flylib-frontend.com") // Cambia por la URL real de tu frontend
+                          .AllowAnyHeader()
+                          .AllowAnyMethod();
+                });
+            });
+
+            //Rate Limiting
+            services.AddRateLimiter(options =>
+            {
+                options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
+                    RateLimitPartition.GetFixedWindowLimiter(
+                        partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                        factory: _ => new FixedWindowRateLimiterOptions
+                        {
+                            PermitLimit = 100, // Máximo de peticiones
+                            Window = TimeSpan.FromMinutes(1),
+                            QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                            QueueLimit = 0
+                        }));
+                options.RejectionStatusCode = 429;
+            });
 
             return services;
         }
