@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FlyLib.Tests.Integration.UserVisitedProvinces
+namespace FlyLib.Tests.Integration.Visiteds
 {
-    internal class UserVisitedProvincesApiTests
+    internal class VisitedsApiTests
     {
     }
 }
