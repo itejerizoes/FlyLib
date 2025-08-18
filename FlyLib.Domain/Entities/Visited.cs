@@ -2,7 +2,7 @@
 {
     public class Visited
     {
-        public int VisitId { get; set; }
+        public int VisitedId { get; set; }
         public string UserId { get; set; } = string.Empty;
         public User? User { get; set; }
         public int ProvinceId { get; set; }
