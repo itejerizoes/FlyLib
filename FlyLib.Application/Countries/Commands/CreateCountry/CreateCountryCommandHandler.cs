@@ -17,7 +17,7 @@ namespace FlyLib.Application.Countries.Commands.CreateCountry
 
         public async Task<CountryDto> Handle(CreateCountryCommand request, CancellationToken ct)
         {
-            var newEntity = new Country { Name = request.Name, Iso2 = request.Iso2 };
+            var newEntity = new Country(request.Name) { Name = request.Name, Iso2 = request.Iso2 };
             await _repo.AddAsync(newEntity, ct);
             await _uow.SaveChangesAsync(ct);
             return _mapper.Map<CountryDto>(newEntity);

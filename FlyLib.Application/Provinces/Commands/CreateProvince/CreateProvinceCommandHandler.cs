@@ -17,7 +17,7 @@ namespace FlyLib.Application.Provinces.Commands.CreateProvince
 
         public async Task<ProvinceDto> Handle(CreateProvinceCommand request, CancellationToken ct)
         {
-            var entity = new Province { Name = request.Name, CountryId = request.CountryId };
+            var entity = new Province(request.Name) { Name = request.Name, CountryId = request.CountryId };
             await _repo.AddAsync(entity, ct);
             await _uow.SaveChangesAsync(ct);
             return _mapper.Map<ProvinceDto>(entity);

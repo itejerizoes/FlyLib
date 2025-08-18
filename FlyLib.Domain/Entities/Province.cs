@@ -7,5 +7,12 @@
         public int CountryId { get; set; }
         public Country? Country { get; set; }
         public ICollection<Visited> Visiteds { get; set; } = new List<Visited>();
+
+        public Province(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentException("El nombre de la provincia no puede estar vacío.", nameof(name));
+            Name = name;
+        }
     }
 }

@@ -17,7 +17,7 @@ namespace FlyLib.Application.Visiteds.Commands.CreateVisited
 
         public async Task<VisitedDto> Handle(CreateVisitedCommand request, CancellationToken ct)
         {
-            var entity = new Visited
+            var entity = new Visited(request.ProvinceId)
             {
                 UserId = request.UserId,
                 ProvinceId = request.ProvinceId,

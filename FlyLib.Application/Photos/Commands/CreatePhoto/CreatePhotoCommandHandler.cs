@@ -17,7 +17,7 @@ namespace FlyLib.Application.Photos.Commands.CreatePhoto
 
         public async Task<PhotoDto> Handle(CreatePhotoCommand request, CancellationToken ct)
         {
-            var entity = new Photo
+            var entity = new Photo(request.Url)
             {
                 Url = request.Url,
                 Description = request.Description,
