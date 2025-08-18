@@ -1,4 +1,5 @@
-﻿using FlyLib.API.Configurations;
+﻿using CorrelationId;
+using FlyLib.API.Configurations;
 using FlyLib.API.Extensions;
 using FlyLib.API.Middleware;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
@@ -11,6 +12,7 @@ Log.Logger = new LoggerConfiguration()
     .WriteTo.File("logs/log-.txt", rollingInterval: RollingInterval.Day)
     .WriteTo.Seq("http://localhost:5341")
     .Enrich.FromLogContext()
+    .Enrich.WithCorrelationId()
     .MinimumLevel.Information()
     .CreateLogger();
 
@@ -41,6 +43,8 @@ if (app.Environment.IsDevelopment())
         options.RoutePrefix = string.Empty;
     });
 }
+
+app.UseCorrelationId();
 
 app.UseHttpsRedirection();
 
