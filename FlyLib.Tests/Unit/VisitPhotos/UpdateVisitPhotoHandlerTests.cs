@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FlyLib.Tests.Unit.VisitPhotos
+namespace FlyLib.Tests.Unit.Photos
 {
-    internal class UpdateVisitPhotoHandlerTests
+    internal class UpdatePhotoHandlerTests
     {
     }
 }

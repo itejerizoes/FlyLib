@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
 using FlyLib.Application.Countries.DTOs;
 using FlyLib.Application.Users.DTOs;
-using FlyLib.Application.UserVisitedProvinces.DTOs;
-using FlyLib.Application.VisitPhotos.DTOs;
+using FlyLib.Application.Visiteds.DTOs;
+using FlyLib.Application.Photos.DTOs;
 using FlyLib.Domain.Entities;
 
 namespace FlyLib.Application.Mapping
@@ -13,8 +13,8 @@ namespace FlyLib.Application.Mapping
         {
             CreateMap<Country, CountryDto>();
             CreateMap<User, UserDto>();
-            CreateMap<UserVisitedProvince, UserVisitedProvinceDto>();
-            CreateMap<VisitPhoto, VisitPhotoDto>();
+            CreateMap<Visited, VisitedDto>();
+            CreateMap<Photo, PhotoDto>();
         }
     }
 }

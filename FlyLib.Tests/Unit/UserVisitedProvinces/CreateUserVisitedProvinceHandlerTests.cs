@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FlyLib.Tests.Unit.UserVisitedProvinces
+namespace FlyLib.Tests.Unit.Visiteds
 {
-    internal class CreateUserVisitedProvinceHandlerTests
+    internal class CreateVisitedHandlerTests
     {
     }
 }

@@ -38,8 +38,8 @@ namespace FlyLib.API.Extensions
             services.AddScoped<ICountryRepository, CountryRepository>();
             services.AddScoped<IProvinceRepository, ProvinceRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
-            services.AddScoped<IUserVisitedProvinceRepository, UserVisitedProvinceRepository>();
-            services.AddScoped<IVisitPhotoRepository, VisitPhotoRepository>();
+            services.AddScoped<IVisitedRepository, VisitedRepository>();
+            services.AddScoped<IPhotoRepository, PhotoRepository>();
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 

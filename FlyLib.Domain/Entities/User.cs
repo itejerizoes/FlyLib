@@ -6,7 +6,7 @@ namespace FlyLib.Domain.Entities
     {
         public string DisplayName { get; set; } = string.Empty;
         public string AuthProvider { get; set; } = string.Empty;
-        public ICollection<UserVisitedProvince> UserVisitedProvinces { get; set; } = new List<UserVisitedProvince>();
+        public ICollection<Visited> Visiteds { get; set; } = new List<Visited>();
         public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
     }
 }

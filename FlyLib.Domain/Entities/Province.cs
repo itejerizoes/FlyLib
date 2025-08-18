@@ -6,6 +6,6 @@
         public string Name { get; set; } = string.Empty;
         public int CountryId { get; set; }
         public Country? Country { get; set; }
-        public ICollection<UserVisitedProvince> UserVisitedProvinces { get; set; } = new List<UserVisitedProvince>();
+        public ICollection<Visited> Visiteds { get; set; } = new List<Visited>();
     }
 }
