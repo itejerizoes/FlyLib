@@ -81,7 +81,7 @@ namespace FlyLib.API.Controllers.v1
         [ProducesResponseType(400)]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateVisitedRequestV1 request)
         {
-            if (id != request.id) return BadRequest("Route id and body id must match");
+            if (id != request.Id) return BadRequest("Route id and body id must match");
 
             var cmd = _mapper.Map<UpdateVisitedCommand>(request);
             await _mediator.Send(cmd);

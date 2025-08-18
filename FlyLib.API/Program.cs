@@ -1,7 +1,9 @@
-﻿using CorrelationId;
+﻿using Azure.Storage.Blobs;
+using CorrelationId;
 using FlyLib.API.Configurations;
 using FlyLib.API.Extensions;
 using FlyLib.API.Middleware;
+using FlyLib.Infrastructure.Storages;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Serilog;
 
@@ -66,3 +68,5 @@ app.MapHealthChecks("/readyz", new Microsoft.AspNetCore.Diagnostics.HealthChecks
 });
 
 app.Run();
+
+public partial class Program { }

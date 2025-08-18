@@ -25,13 +25,23 @@ namespace FlyLib.API.Extensions
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddFlyLibraryServices(this IServiceCollection services, IConfiguration config)
+        public static IServiceCollection AddFlyLibraryServices(this IServiceCollection services, IConfiguration config, BlobServiceClient? blobClient = null)
         {
             // DbContext
             services.AddDbContext<FlyLibDbContext>(opt =>
             {
                 opt.UseSqlServer(config.GetConnectionString("DefaultConnection"));
             });
+
+            // Inyección de BlobServiceClient: si se pasa uno, se usa, sino se crea con la config
+            if (blobClient == null)
+            {
+                var connString = config.GetConnectionString("AzureBlobStorage") ?? throw new InvalidOperationException("Falta la cadena de AzureBlobStorage");
+                blobClient = new BlobServiceClient(connString);
+            }
+
+            services.AddSingleton(blobClient);
+            services.AddScoped<BlobStorageService>();
 
             // UoW + Repos
             services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -138,10 +148,6 @@ namespace FlyLib.API.Extensions
                         }));
                 options.RejectionStatusCode = 429;
             });
-
-            //Azure Storage Blobs
-            services.AddSingleton(new BlobServiceClient(config.GetConnectionString("AzureBlobStorage")));
-            services.AddScoped<BlobStorageService>();
 
             return services;
         }

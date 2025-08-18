@@ -19,7 +19,7 @@ using Microsoft.AspNetCore.Mvc;
 using FlyLib.API.DTOs.v1.Photos.Requests;
 using FlyLib.API.DTOs.v1.Photos.Responses;
 
-namespace FlyLib.API.Controllers.v2
+namespace FlyLib.API.Controllers.v1
 {
     [ApiController]
     [ApiVersion("1.0")]
