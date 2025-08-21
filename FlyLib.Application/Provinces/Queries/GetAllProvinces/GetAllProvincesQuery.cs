@@ -3,5 +3,8 @@ using MediatR;
 
 namespace FlyLib.Application.Provinces.Queries.GetAllProvinces
 {
-    public sealed record GetAllProvincesQuery() : IRequest<IEnumerable<ProvinceDto>>;
+    public class GetAllProvincesQuery : IRequest<IEnumerable<ProvinceDto>>
+    {
+        public GetAllProvincesQuery() { }
+    }
 }

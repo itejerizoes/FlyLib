@@ -3,5 +3,8 @@ using MediatR;
 
 namespace FlyLib.Application.Users.Queries.GetAllUsers
 {
-    public sealed record GetAllUsersQuery() : IRequest<IEnumerable<UserDto>>;
+    public class GetAllUsersQuery : IRequest<IEnumerable<UserDto>>
+    {
+        public GetAllUsersQuery() { }
+    }
 }

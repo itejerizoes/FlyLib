@@ -2,5 +2,15 @@
 
 namespace FlyLib.Application.Photos.Commands.DeletePhoto
 {
-    public sealed record DeletePhotoCommand(int Id) : IRequest<Unit>;
+    public class DeletePhotoCommand : IRequest<Unit>
+    {
+        public int Id { get; set; }
+
+        public DeletePhotoCommand() { }
+
+        public DeletePhotoCommand(int id)
+        {
+            Id = id;
+        }
+    }
 }

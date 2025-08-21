@@ -17,12 +17,7 @@ namespace FlyLib.Application.Photos.Commands.CreatePhoto
 
         public async Task<PhotoDto> Handle(CreatePhotoCommand request, CancellationToken ct)
         {
-            var entity = new Photo(request.Url)
-            {
-                Url = request.Url,
-                Description = request.Description,
-                VisitedId = request.VisitedId
-            };
+            var entity = new Photo(request.Url) { Description = request.Description, VisitedId = request.VisitedId };
             await _repo.AddAsync(entity, ct);
             await _uow.SaveChangesAsync(ct);
             return _mapper.Map<PhotoDto>(entity);

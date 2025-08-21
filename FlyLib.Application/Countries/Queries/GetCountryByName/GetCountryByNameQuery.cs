@@ -3,5 +3,15 @@ using MediatR;
 
 namespace FlyLib.Application.Countries.Queries.GetCountryByName
 {
-    public sealed record GetCountryByNameQuery(string Name) : IRequest<CountryDto?>;
+    public class GetCountryByNameQuery : IRequest<CountryDto?>
+    {
+        public string Name { get; set; }
+
+        public GetCountryByNameQuery() { }
+
+        public GetCountryByNameQuery(string name)
+        {
+            Name = name;
+        }
+    }
 }

@@ -36,8 +36,8 @@ namespace FlyLib.Tests.Unit.Visiteds
             // Lista de fotos de prueba con todos los argumentos requeridos
             var photoDtos = new List<PhotoDto>
             {
-                new PhotoDto(PhotoId: 0, Url: "http://example.com/photo1.jpg", Description: "Foto 1", VisitedId: visitedId),
-                new PhotoDto(PhotoId: 0, Url: "http://example.com/photo2.jpg", Description: "Foto 2", VisitedId: visitedId)
+                new PhotoDto(0, "http://example.com/photo1.jpg", "Foto 1", visitedId),
+                new PhotoDto(0, "http://example.com/photo2.jpg", "Foto 2", visitedId)
             };
 
             // Crear handler

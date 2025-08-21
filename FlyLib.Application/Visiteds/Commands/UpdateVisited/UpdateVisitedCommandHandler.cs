@@ -20,7 +20,6 @@ namespace FlyLib.Application.Visiteds.Commands.UpdateVisited
             entity.UserId = request.UserId;
             entity.ProvinceId = request.ProvinceId;
 
-            // Mapear DTOs a entidades
             entity.Photos = request.Photos
                 .Select(p => new Photo(p.Url) { PhotoId = p.PhotoId, Description = p.Description })
                 .ToList();

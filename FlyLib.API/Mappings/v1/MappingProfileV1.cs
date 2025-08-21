@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using FlyLib.API.DTOs.v1.Countries.Requests;
 using FlyLib.API.DTOs.v1.Countries.Responses;
+using FlyLib.API.DTOs.v1.Photos.Requests;
+using FlyLib.API.DTOs.v1.Photos.Responses;
 using FlyLib.API.DTOs.v1.Provinces.Requests;
 using FlyLib.API.DTOs.v1.Provinces.Responses;
 using FlyLib.API.DTOs.v1.Users.Requests;
@@ -9,17 +11,20 @@ using FlyLib.API.DTOs.v1.Visited.Requests;
 using FlyLib.API.DTOs.v1.Visited.Responses;
 using FlyLib.Application.Countries.Commands.CreateCountry;
 using FlyLib.Application.Countries.Commands.UpdateCountry;
-using FlyLib.Application.Provinces.Commands.CreateProvince;
-using FlyLib.Application.Provinces.Commands.UpdateProvince;
-using FlyLib.Application.Users.Commands.CreateUser;
-using FlyLib.Application.Users.Commands.UpdateUser;
-using FlyLib.Application.Visiteds.Commands.CreateVisited;
-using FlyLib.Application.Visiteds.Commands.UpdateVisited;
+using FlyLib.Application.Countries.DTOs;
 using FlyLib.Application.Photos.Commands.CreatePhoto;
 using FlyLib.Application.Photos.Commands.UpdatePhoto;
+using FlyLib.Application.Photos.DTOs;
+using FlyLib.Application.Provinces.Commands.CreateProvince;
+using FlyLib.Application.Provinces.Commands.UpdateProvince;
+using FlyLib.Application.Provinces.DTOs;
+using FlyLib.Application.Users.Commands.CreateUser;
+using FlyLib.Application.Users.Commands.UpdateUser;
+using FlyLib.Application.Users.DTOs;
+using FlyLib.Application.Visiteds.Commands.CreateVisited;
+using FlyLib.Application.Visiteds.Commands.UpdateVisited;
+using FlyLib.Application.Visiteds.DTOs;
 using FlyLib.Domain.Entities;
-using FlyLib.API.DTOs.v1.Photos.Requests;
-using FlyLib.API.DTOs.v1.Photos.Responses;
 
 namespace FlyLib.API.Mappings.v1
 {
@@ -44,8 +49,19 @@ namespace FlyLib.API.Mappings.v1
             CreateMap<Country, CountryResponseV1>();
             CreateMap<Province, ProvinceResponseV1>();
             CreateMap<User, UserResponseV1>();
-            CreateMap<Visited, VisitedResponseV1>();
-            CreateMap<Photo, PhotoResponseV1>();
+            CreateMap<Visited, VisitedResponseV1>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.VisitedId));
+            CreateMap<Photo, PhotoResponseV1>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.PhotoId));
+
+            // API → Response
+            CreateMap<CountryDto, CountryResponseV1>();
+            CreateMap<ProvinceDto, ProvinceResponseV1>();
+            CreateMap<UserDto, UserResponseV1>();
+            CreateMap<VisitedDto, VisitedResponseV1>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
+            CreateMap<PhotoDto, PhotoResponseV1>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.PhotoId));
         }
     }
 }

@@ -2,5 +2,15 @@
 
 namespace FlyLib.Application.Provinces.Commands.DeleteProvince
 {
-    public sealed record DeleteProvinceCommand(int ProvinceId) : IRequest<Unit>;
+    public class DeleteProvinceCommand : IRequest<Unit>
+    {
+        public int Id { get; set; }
+
+        public DeleteProvinceCommand() { }
+
+        public DeleteProvinceCommand(int id)
+        {
+            Id = id;
+        }
+    }
 }

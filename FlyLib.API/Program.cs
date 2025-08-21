@@ -33,9 +33,9 @@ if (!isTest)
 {
     builder.Services.AddDbContext<FlyLibDbContext>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-}
 
-builder.Services.AddFlyLibraryServices(builder.Configuration, useInMemory: isTest);
+    builder.Services.AddFlyLibraryServices(builder.Configuration, useInMemory: isTest);
+}
 
 if (!isTest)
 {

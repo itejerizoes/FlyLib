@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Linq;
 
 namespace TestFlyLibrary.Tests.Utilities
@@ -17,16 +18,18 @@ namespace TestFlyLibrary.Tests.Utilities
         {
             builder.UseEnvironment("Test");
 
+
             builder.ConfigureServices(services =>
             {
                 // =========================
-                // Reemplazar DbContext por InMemory
+                // Reemplazar DbContext por InMemory con nombre único
                 // =========================
                 var dbDescriptor = services.SingleOrDefault(d => d.ServiceType == typeof(DbContextOptions<FlyLibDbContext>));
                 if (dbDescriptor != null) services.Remove(dbDescriptor);
 
+                var dbName = Guid.NewGuid().ToString();
                 services.AddDbContext<FlyLibDbContext>(options =>
-                    options.UseInMemoryDatabase("FlyLibTestDb"));
+                    options.UseInMemoryDatabase(dbName));
 
                 services.AddFlyLibraryServices(new ConfigurationBuilder().Build(), useInMemory: true);
 

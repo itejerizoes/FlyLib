@@ -13,7 +13,7 @@ namespace FlyLib.Application.Countries.Commands.DeleteCountry
 
         public async Task<Unit> Handle(DeleteCountryCommand request, CancellationToken ct)
         {
-            await _repo.DeleteAsync(request.CountryId, ct);
+            await _repo.DeleteAsync(request.Id, ct);
             await _uow.SaveChangesAsync(ct);
             return Unit.Value;
         }

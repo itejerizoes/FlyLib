@@ -63,13 +63,13 @@ namespace FlyLib.API.Controllers.v1
         [HttpPost]
         [ProducesResponseType(typeof(VisitedResponseV1), 201)]
         [ProducesResponseType(400)]
-        public async Task<IActionResult> Create([FromBody] CreateCountryRequestV1 request)
+        public async Task<IActionResult> Create([FromBody] CreateVisitedRequestV1 request)
         {
             var cmd = _mapper.Map<CreateVisitedCommand>(request);
             var created = await _mediator.Send(cmd);
 
             var response = _mapper.Map<VisitedResponseV1>(created);
-            return CreatedAtAction(nameof(GetById), new { id = created.Id }, response);
+            return CreatedAtAction(nameof(GetById), new { id = response.Id }, response);
         }
 
         /// <summary>

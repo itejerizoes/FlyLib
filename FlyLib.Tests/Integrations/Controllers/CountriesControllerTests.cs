@@ -2,6 +2,7 @@
 using FlyLib.API.DTOs.v1.Countries.Requests;
 using FlyLib.API.DTOs.v1.Countries.Responses;
 using FlyLib.Infrastructure.Persistence;
+using FlyLib.Tests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -15,26 +16,36 @@ using Xunit;
 
 namespace FlyLib.Tests.Integrations.Controllers
 {
-    public class CountriesControllerTests : IClassFixture<CustomWebApplicationFactory<Program>>
+    public class CountriesControllerTests : IClassFixture<CustomWebApplicationFactory<Program>>, IAsyncLifetime
     {
         private readonly HttpClient _client;
         private readonly CustomWebApplicationFactory<Program> _factory;
 
         public CountriesControllerTests(CustomWebApplicationFactory<Program> factory)
         {
+            Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Test");
             _factory = factory;
             _client = factory.CreateClient();
         }
+
+        public async Task InitializeAsync()
+        {
+            using var scope = _factory.Services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<FlyLibDbContext>();
+            await db.Database.EnsureDeletedAsync();
+            await db.Database.EnsureCreatedAsync();
+            SeedData.Initialize(db);
+        }
+
+        public Task DisposeAsync() => Task.CompletedTask;
 
         [Fact]
         public async Task GetAll_ShouldReturnSeededCountries()
         {
             var response = await _client.GetAsync("/api/v1/countries");
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            Console.WriteLine(response);
 
             var countries = await response.Content.ReadFromJsonAsync<List<CountryResponseV1>>();
-            Console.WriteLine(response);
             countries.Should().NotBeNull();
             countries.Should().HaveCount(c => c >= 3);
             countries!.Select(c => c.Name).Should().Contain(new[] { "Argentina", "Chile", "Peru" });
@@ -43,18 +54,23 @@ namespace FlyLib.Tests.Integrations.Controllers
         [Fact]
         public async Task GetById_ShouldReturnArgentina()
         {
-            using var scope = _factory.Services.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<FlyLibDbContext>();
-            var argentina = context.Countries.First(c => c.Name == "Argentina");
+            int argentinaId;
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<FlyLibDbContext>();
+                var argentina = context.Countries.First(c => c.Name == "Argentina");
+                argentinaId = argentina.CountryId;
+            }
 
-            var response = await _client.GetAsync($"/api/v1/countries/{argentina.CountryId}");
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-            Console.WriteLine(response);
+            using (var verifyScope = _factory.Services.CreateScope())
+            {
+                var response = await _client.GetAsync($"/api/v1/countries/{argentinaId}");
+                response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-            var country = await response.Content.ReadFromJsonAsync<CountryResponseV1>();
-            Console.WriteLine(country);
-            country!.Name.Should().Be("Argentina");
-            country.IsoCode.Should().Be("AR");
+                var country = await response.Content.ReadFromJsonAsync<CountryResponseV1>();
+                country!.Name.Should().Be("Argentina");
+                country.IsoCode.Should().Be("ARG");
+            }
         }
 
         [Fact]
@@ -62,63 +78,90 @@ namespace FlyLib.Tests.Integrations.Controllers
         {
             var response = await _client.GetAsync("/api/v1/countries/byName/Chile");
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            Console.WriteLine(response);
 
             var country = await response.Content.ReadFromJsonAsync<CountryResponseV1>();
             country!.Name.Should().Be("Chile");
-            Console.WriteLine(country);
+        }
+
+        [Fact]
+        public async Task Create_ShouldAddCountry()
+        {
+            var createRequest = new CreateCountryRequestV1("Brasil", "BRA");
+            var response = await _client.PostAsJsonAsync("/api/v1/countries", createRequest);
+            response.StatusCode.Should().Be(HttpStatusCode.Created);
+
+            int newCountryId;
+            var created = await response.Content.ReadFromJsonAsync<CountryResponseV1>();
+            created.Should().NotBeNull();
+            created!.Name.Should().Be("Brasil");
+            created.IsoCode.Should().Be("BRA");
+            newCountryId = created.CountryId;
+
+            using (var verifyScope = _factory.Services.CreateScope())
+            {
+                var verifyContext = verifyScope.ServiceProvider.GetRequiredService<FlyLibDbContext>();
+                var brasilDb = await verifyContext.Countries.FindAsync(newCountryId);
+                brasilDb.Should().NotBeNull();
+                brasilDb!.Name.Should().Be("Brasil");
+                brasilDb.IsoCode.Should().Be("BRA");
+            }
         }
 
         [Fact]
         public async Task Update_ShouldModifyPeru()
         {
-            using var scope = _factory.Services.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<FlyLibDbContext>();
-            var peru = context.Countries.First(c => c.Name == "Peru");
+            int peruId;
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<FlyLibDbContext>();
+                var peru = context.Countries.First(c => c.Name == "Peru");
+                peruId = peru.CountryId;
+            }
 
-            var updateRequest = new UpdateCountryRequestV1(peru.CountryId, "Peru Updated", "PEU");
-
-            var response = await _client.PutAsJsonAsync($"/api/v1/countries/{peru.CountryId}", updateRequest);
+            var updateRequest = new UpdateCountryRequestV1(peruId, "Peru Updated", "PEU");
+            var response = await _client.PutAsJsonAsync($"/api/v1/countries/{peruId}", updateRequest);
             response.StatusCode.Should().Be(HttpStatusCode.NoContent);
-            Console.WriteLine(response);
 
-            var getResponse = await _client.GetAsync($"/api/v1/countries/{peru.CountryId}");
-            getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            Console.WriteLine(getResponse);
+            using (var verifyScope = _factory.Services.CreateScope())
+            {
+                var verifyContext = verifyScope.ServiceProvider.GetRequiredService<FlyLibDbContext>();
+                var getResponse = await _client.GetAsync($"/api/v1/countries/{peruId}");
+                getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-            var updated = await getResponse.Content.ReadFromJsonAsync<CountryResponseV1>();
-            updated.Should().NotBeNull();
-            updated!.Name.Should().Be("Peru Updated");
-            updated.IsoCode.Should().Be("PEU");
+                var updated = await getResponse.Content.ReadFromJsonAsync<CountryResponseV1>();
+                updated.Should().NotBeNull();
+                updated!.Name.Should().Be("Peru Updated");
+                updated.IsoCode.Should().Be("PEU");
 
-            // Validación directa en la DB
-            var peruDb = await context.Countries.FindAsync(peru.CountryId);
-            Console.WriteLine(peruDb);
-            peruDb!.Name.Should().Be("Peru Updated");
-            peruDb.IsoCode.Should().Be("PEU");
+                var peruDb = await verifyContext.Countries.FindAsync(peruId);
+                peruDb!.Name.Should().Be("Peru Updated");
+                peruDb.IsoCode.Should().Be("PEU");
+            }
         }
 
         [Fact]
         public async Task Delete_ShouldRemoveChile()
         {
-            using var scope = _factory.Services.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<FlyLibDbContext>();
-            var chile = context.Countries.First(c => c.Name == "Chile");
+            int chileId;
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<FlyLibDbContext>();
+                var chile = context.Countries.First(c => c.Name == "Chile");
+                chileId = chile.CountryId;
 
-            // Ejecutar DELETE
-            var response = await _client.DeleteAsync($"/api/v1/countries/{chile.CountryId}");
-            response.StatusCode.Should().Be(HttpStatusCode.NoContent);
-            Console.WriteLine(response);
+                var response = await _client.DeleteAsync($"/api/v1/countries/{chileId}");
+                response.StatusCode.Should().Be(HttpStatusCode.NoContent);
+            }
 
-            // GET después de DELETE debería ser 404
-            var getResponse = await _client.GetAsync($"/api/v1/countries/{chile.CountryId}");
-            getResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
-            Console.WriteLine(getResponse);
+            using (var verifyScope = _factory.Services.CreateScope())
+            {
+                var verifyContext = verifyScope.ServiceProvider.GetRequiredService<FlyLibDbContext>();
+                var getResponse = await _client.GetAsync($"/api/v1/countries/{chileId}");
+                getResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
 
-            // Validación directa en la DB
-            var chileDb = await context.Countries.FindAsync(chile.CountryId);
-            chileDb.Should().BeNull(); // Esto ahora debería pasar
-            Console.WriteLine(chileDb);
+                var chileDb = await verifyContext.Countries.FindAsync(chileId);
+                chileDb.Should().BeNull();
+            }
         }
     }
 }

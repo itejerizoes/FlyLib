@@ -2,5 +2,15 @@
 
 namespace FlyLib.Application.Users.Commands.DeleteUser
 {
-    public sealed record DeleteUserCommand(string Id) : IRequest<Unit>;
+    public class DeleteUserCommand : IRequest<Unit>
+    {
+        public string Id { get; set; }
+
+        public DeleteUserCommand() { }
+
+        public DeleteUserCommand(string id)
+        {
+            Id = id;
+        }
+    }
 }

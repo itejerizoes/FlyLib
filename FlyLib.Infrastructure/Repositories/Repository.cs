@@ -64,7 +64,6 @@ namespace FlyLib.Infrastructure.Repositories
             if (entity != null)
             {
                 _db.Remove(entity);
-                await _context.SaveChangesAsync(ct);
             }
         }
     }

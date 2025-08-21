@@ -4,5 +4,19 @@ using MediatR;
 
 namespace FlyLib.Application.Visiteds.Commands.CreateVisited
 {
-    public sealed record CreateVisitedCommand(string UserId, int ProvinceId, ICollection<PhotoDto> Photos) : IRequest<VisitedDto>;
+    public class CreateVisitedCommand : IRequest<VisitedDto>
+    {
+        public string UserId { get; set; }
+        public int ProvinceId { get; set; }
+        public IEnumerable<PhotoDto> Photos { get; set; }
+
+        public CreateVisitedCommand() { }
+
+        public CreateVisitedCommand(string userId, int provinceId, IEnumerable<PhotoDto> photos)
+        {
+            UserId = userId;
+            ProvinceId = provinceId;
+            Photos = photos;
+        }
+    }
 }

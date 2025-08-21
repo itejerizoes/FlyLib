@@ -6,7 +6,6 @@ namespace FlyLib.Infrastructure.Repositories
 {
     public class UserRepository : Repository<User>, IUserRepository
     {
-        private readonly FlyLibDbContext _ctx;
-        public UserRepository(FlyLibDbContext ctx) : base(ctx) => _ctx = ctx;
+        public UserRepository(FlyLibDbContext context) : base(context) { }
     }
 }

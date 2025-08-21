@@ -13,8 +13,8 @@ namespace FlyLib.Application.Photos.Commands.UpdatePhoto
 
         public async Task<Unit> Handle(UpdatePhotoCommand request, CancellationToken ct)
         {
-            var entity = await _repo.GetByIdAsync(request.Id, ct);
-            if (entity is null) throw new KeyNotFoundException($"Photo {request.Id} not found");
+            var entity = await _repo.GetByIdAsync(request.PhotoId, ct);
+            if (entity is null) throw new KeyNotFoundException($"Photo {request.PhotoId} not found");
             entity.Url = request.Url;
             entity.Description = request.Description;
             entity.VisitedId = request.VisitedId;

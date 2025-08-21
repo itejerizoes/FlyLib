@@ -3,5 +3,8 @@ using MediatR;
 
 namespace FlyLib.Application.Visiteds.Queries.GetAllVisiteds
 {
-    public sealed record GetAllVisitedsQuery() : IRequest<IEnumerable<VisitedDto>>;
+    public class GetAllVisitedsQuery : IRequest<IEnumerable<VisitedDto>>
+    {
+        public GetAllVisitedsQuery() { }
+    }
 }

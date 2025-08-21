@@ -1,9 +1,9 @@
 ﻿using FluentAssertions;
-using FlyLib.API.DTOs.v1.Countries.Requests;
+using FlyLib.API.DTOs.v1.Photos.Requests;
 using FlyLib.API.DTOs.v1.Visited.Requests;
 using FlyLib.API.DTOs.v1.Visited.Responses;
-using FlyLib.Domain.Entities;
 using FlyLib.Infrastructure.Persistence;
+using FlyLib.Tests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -17,7 +17,7 @@ using Xunit;
 
 namespace FlyLib.Tests.Integrations.Controllers
 {
-    public class VisitedsControllerTests : IClassFixture<CustomWebApplicationFactory<Program>>
+    public class VisitedsControllerTests : IClassFixture<CustomWebApplicationFactory<Program>>, IAsyncLifetime
     {
         private readonly HttpClient _client;
         private readonly CustomWebApplicationFactory<Program> _factory;
@@ -28,6 +28,18 @@ namespace FlyLib.Tests.Integrations.Controllers
             _factory = factory;
             _client = factory.CreateClient();
         }
+
+        // Se ejecuta antes de cada test
+        public async Task InitializeAsync()
+        {
+            using var scope = _factory.Services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<FlyLibDbContext>();
+            await db.Database.EnsureDeletedAsync();
+            await db.Database.EnsureCreatedAsync();
+            SeedData.Initialize(db);
+        }
+
+        public Task DisposeAsync() => Task.CompletedTask;
 
         [Fact]
         public async Task GetAll_ShouldReturnSeededVisiteds()
@@ -43,45 +55,110 @@ namespace FlyLib.Tests.Integrations.Controllers
         [Fact]
         public async Task GetById_ShouldReturnVisited_WhenExists()
         {
-            using var scope = _factory.Services.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<FlyLibDbContext>();
-            var visitedId = context.Visiteds.First().VisitedId;
+            int visitedId;
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<FlyLibDbContext>();
+                visitedId = context.Visiteds.First().VisitedId;
+            }
 
-            var response = await _client.GetAsync($"/api/v1/visiteds/{visitedId}");
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            using (var verifyScope = _factory.Services.CreateScope())
+            {
+                var response = await _client.GetAsync($"/api/v1/visiteds/{visitedId}");
+                response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-            var visited = await response.Content.ReadFromJsonAsync<VisitedResponseV1>();
-            visited!.Id.Should().Be(visitedId);
+                var visited = await response.Content.ReadFromJsonAsync<VisitedResponseV1>();
+                visited!.Id.Should().Be(visitedId);
+            }
+        }
+
+        [Fact]
+        public async Task Create_ShouldAddVisited()
+        {
+            string userId;
+            int provinceId;
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<FlyLibDbContext>();
+                userId = context.Users.First().Id;
+                provinceId = context.Provinces.First().ProvinceId;
+            }
+
+            var createRequest = new CreateVisitedRequestV1(userId, provinceId, new List<CreatePhotoRequestV1>());
+            var response = await _client.PostAsJsonAsync("/api/v1/visiteds", createRequest);
+            response.StatusCode.Should().Be(HttpStatusCode.Created);
+
+            var created = await response.Content.ReadFromJsonAsync<VisitedResponseV1>();
+            created.Should().NotBeNull();
+            created!.UserId.Should().Be(userId);
+            created.ProvinceId.Should().Be(provinceId);
+            int newVisitedId = created.Id;
+
+            using (var verifyScope = _factory.Services.CreateScope())
+            {
+                var verifyContext = verifyScope.ServiceProvider.GetRequiredService<FlyLibDbContext>();
+                var visitedDb = await verifyContext.Visiteds.FindAsync(newVisitedId);
+                visitedDb.Should().NotBeNull();
+                visitedDb!.UserId.Should().Be(userId);
+                visitedDb.ProvinceId.Should().Be(provinceId);
+            }
         }
 
         [Fact]
         public async Task Update_ShouldModifyVisited()
         {
-            using var scope = _factory.Services.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<FlyLibDbContext>();
-            var visited = context.Visiteds.First();
+            int visitedId;
+            string userId;
+            int provinceId;
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<FlyLibDbContext>();
+                var visited = context.Visiteds.First();
+                visitedId = visited.VisitedId;
+                userId = visited.UserId;
+                provinceId = visited.ProvinceId;
+            }
 
-            var updateRequest = new UpdateVisitedRequestV1(visited.VisitedId, visited.UserId, visited.ProvinceId, new List<Photo>());
-            var response = await _client.PutAsJsonAsync($"/api/v1/visiteds/{visited.VisitedId}", updateRequest);
+            var updateRequest = new UpdateVisitedRequestV1(visitedId, userId, provinceId, new List<UpdatePhotoRequestV1>());
+            var response = await _client.PutAsJsonAsync($"/api/v1/visiteds/{visitedId}", updateRequest);
             response.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
-            var getResponse = await _client.GetAsync($"/api/v1/visiteds/{visited.VisitedId}");
-            var updated = await getResponse.Content.ReadFromJsonAsync<VisitedResponseV1>();
-            updated!.ProvinceId.Should().Be(visited.ProvinceId);
+            using (var verifyScope = _factory.Services.CreateScope())
+            {
+                var getResponse = await _client.GetAsync($"/api/v1/visiteds/{visitedId}");
+                getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+                var updated = await getResponse.Content.ReadFromJsonAsync<VisitedResponseV1>();
+                updated!.ProvinceId.Should().Be(provinceId);
+
+                var verifyContext = verifyScope.ServiceProvider.GetRequiredService<FlyLibDbContext>();
+                var visitedDb = await verifyContext.Visiteds.FindAsync(visitedId);
+                visitedDb!.ProvinceId.Should().Be(provinceId);
+            }
         }
 
         [Fact]
         public async Task Delete_ShouldRemoveVisited()
         {
-            using var scope = _factory.Services.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<FlyLibDbContext>();
-            var visitedId = context.Visiteds.Last().VisitedId;
+            int visitedId;
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<FlyLibDbContext>();
+                visitedId = context.Visiteds.Last().VisitedId;
 
-            var response = await _client.DeleteAsync($"/api/v1/visiteds/{visitedId}");
-            response.StatusCode.Should().Be(HttpStatusCode.NoContent);
+                var response = await _client.DeleteAsync($"/api/v1/visiteds/{visitedId}");
+                response.StatusCode.Should().Be(HttpStatusCode.NoContent);
+            }
 
-            var getResponse = await _client.GetAsync($"/api/v1/visiteds/{visitedId}");
-            getResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
+            using (var verifyScope = _factory.Services.CreateScope())
+            {
+                var getResponse = await _client.GetAsync($"/api/v1/visiteds/{visitedId}");
+                getResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
+
+                var verifyContext = verifyScope.ServiceProvider.GetRequiredService<FlyLibDbContext>();
+                var visitedDb = await verifyContext.Visiteds.FindAsync(visitedId);
+                visitedDb.Should().BeNull();
+            }
         }
     }
 }

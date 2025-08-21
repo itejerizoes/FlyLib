@@ -6,7 +6,6 @@ namespace FlyLib.Infrastructure.Repositories
 {
     public class VisitedRepository : Repository<Visited>, IVisitedRepository
     {
-        private readonly FlyLibDbContext _ctx;
-        public VisitedRepository(FlyLibDbContext ctx) : base(ctx) => _ctx = ctx;
+        public VisitedRepository(FlyLibDbContext context) : base(context) { }
     }
 }

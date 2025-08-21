@@ -3,5 +3,19 @@ using MediatR;
 
 namespace FlyLib.Application.Countries.Commands.UpdateCountry
 {
-    public sealed record UpdateCountryCommand(int CountryId, string Name, string? IsoCode) : IRequest<Unit>;
+    public class UpdateCountryCommand : IRequest<Unit>
+    {
+        public int CountryId { get; set; }
+        public string Name { get; set; }
+        public string IsoCode { get; set; }
+
+        public UpdateCountryCommand() { }
+
+        public UpdateCountryCommand(int countryId, string name, string isoCode)
+        {
+            CountryId = countryId;
+            Name = name;
+            IsoCode = isoCode;
+        }
+    }
 }

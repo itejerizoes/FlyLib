@@ -13,7 +13,7 @@ namespace FlyLib.Application.Provinces.Commands.DeleteProvince
 
         public async Task<Unit> Handle(DeleteProvinceCommand request, CancellationToken ct)
         {
-            await _repo.DeleteAsync(request.ProvinceId, ct);
+            await _repo.DeleteAsync(request.Id, ct);
             await _uow.SaveChangesAsync(ct);
             return Unit.Value;
         }

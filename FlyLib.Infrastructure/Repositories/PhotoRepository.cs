@@ -6,7 +6,6 @@ namespace FlyLib.Infrastructure.Repositories
 {
     public class PhotoRepository : Repository<Photo>, IPhotoRepository
     {
-        private readonly FlyLibDbContext _ctx;
-        public PhotoRepository(FlyLibDbContext ctx) : base(ctx) => _ctx = ctx;
+        public PhotoRepository(FlyLibDbContext context) : base(context) { }
     }
 }

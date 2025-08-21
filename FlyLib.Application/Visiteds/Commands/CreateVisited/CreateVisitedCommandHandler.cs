@@ -17,7 +17,6 @@ namespace FlyLib.Application.Visiteds.Commands.CreateVisited
 
         public async Task<VisitedDto> Handle(CreateVisitedCommand request, CancellationToken ct)
         {
-            // Convertir DTOs a entidades
             var photos = request.Photos
                 .Select(p => new Photo(p.Url) { Description = p.Description })
                 .ToList();

@@ -3,5 +3,17 @@ using MediatR;
 
 namespace FlyLib.Application.Provinces.Commands.CreateProvince
 {
-    public sealed record CreateProvinceCommand(string Name, int CountryId) : IRequest<ProvinceDto>;
+    public class CreateProvinceCommand : IRequest<ProvinceDto>
+    {
+        public string Name { get; set; }
+        public int CountryId { get; set; }
+
+        public CreateProvinceCommand() { }
+
+        public CreateProvinceCommand(string name, int countryId)
+        {
+            Name = name;
+            CountryId = countryId;
+        }
+    }
 }

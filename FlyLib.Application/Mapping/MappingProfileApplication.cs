@@ -26,6 +26,7 @@ namespace FlyLib.Application.Mapping
 
             CreateMap<User, UserDto>()
                 .ConstructUsing(u => MapUser(u));
+
         }
 
         // Métodos privados para mapear DTOs anidados

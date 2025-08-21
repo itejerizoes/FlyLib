@@ -3,5 +3,15 @@ using MediatR;
 
 namespace FlyLib.Application.Provinces.Queries.GetProvinceByName
 {
-    public sealed record GetProvinceByNameQuery(string Name) : IRequest<ProvinceDto?>;
+    public class GetProvinceByNameQuery : IRequest<ProvinceDto?>
+    {
+        public string Name { get; set; }
+
+        public GetProvinceByNameQuery() { }
+
+        public GetProvinceByNameQuery(string name)
+        {
+            Name = name;
+        }
+    }
 }

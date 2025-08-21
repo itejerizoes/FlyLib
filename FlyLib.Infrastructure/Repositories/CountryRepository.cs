@@ -1,19 +1,17 @@
 ﻿using FlyLib.Domain.Abstractions;
 using FlyLib.Domain.Entities;
+using FlyLib.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace FlyLib.Infrastructure.Repositories
 {
     public class CountryRepository : Repository<Country>, ICountryRepository
     {
-        private readonly DbContext _ctx;
-
-        public CountryRepository(DbContext ctx) : base(ctx)
-            => _ctx = ctx;
+        public CountryRepository(FlyLibDbContext context) : base(context) { }
 
         public async Task<Country?> GetByNameAsync(string name, CancellationToken ct = default)
-            => await _ctx.Set<Country>()
-                         .AsNoTracking()
-                         .FirstOrDefaultAsync(c => c.Name == name, ct);
+            => await _context.Set<Country>()
+                             .AsNoTracking()
+                             .FirstOrDefaultAsync(c => c.Name == name, ct);
     }
 }

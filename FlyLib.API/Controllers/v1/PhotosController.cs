@@ -68,7 +68,7 @@ namespace FlyLib.API.Controllers.v1
             var created = await _mediator.Send(cmd);
 
             var response = _mapper.Map<PhotoResponseV1>(created);
-            return CreatedAtAction(nameof(GetById), new { id = created.PhotoId }, response);
+            return CreatedAtAction(nameof(GetById), new { id = response.Id }, response);
         }
 
         /// <summary>
@@ -80,7 +80,7 @@ namespace FlyLib.API.Controllers.v1
         [ProducesResponseType(400)]
         public async Task<IActionResult> Update(int id, [FromBody] UpdatePhotoRequestV1 request)
         {
-            if (id != request.Id) return BadRequest("Route id and body id must match");
+            if (id != request.PhotoId) return BadRequest("Route id and body id must match");
 
             var cmd = _mapper.Map<UpdatePhotoCommand>(request);
             await _mediator.Send(cmd);
