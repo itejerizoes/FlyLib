@@ -15,8 +15,8 @@ namespace FlyLib.Application.Users.Commands.UpdateUser
         {
             var entity = await _repo.GetByIdAsync(request.Id, ct);
             if (entity is null) throw new KeyNotFoundException($"User {request.Id} not found");
-            entity.Email = request.Email;
             entity.DisplayName = request.DisplayName;
+            entity.AuthProvider = request.AuthProvider;
             await _repo.UpdateAsync(entity, ct);
             await _uow.SaveChangesAsync(ct);
             return Unit.Value;

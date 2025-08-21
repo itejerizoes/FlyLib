@@ -26,7 +26,7 @@ namespace FlyLib.Tests.Unit.Photos
             var result = await handler.Handle(new GetPhotoByIdQuery(1), default);
 
             result.Should().NotBeNull();
-            result.PhotoUrl.Should().Be("http://url.com/foto.jpg");
+            result.Url.Should().Be("http://url.com/foto.jpg");
             repo.Verify(r => r.GetByIdAsync(1, default), Times.Once);
         }
     }

@@ -3,5 +3,8 @@ using MediatR;
 
 namespace FlyLib.Application.Countries.Queries.GetAllCountries
 {
-    public sealed record GetAllCountriesQuery() : IRequest<IEnumerable<CountryDto>>;
+    public class GetAllCountriesQuery : IRequest<IEnumerable<CountryDto>>
+    {
+        public GetAllCountriesQuery() { }
+    }
 }

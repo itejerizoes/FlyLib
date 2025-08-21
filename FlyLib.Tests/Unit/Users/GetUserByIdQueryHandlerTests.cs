@@ -1,9 +1,11 @@
 ﻿using FluentAssertions;
 using FlyLib.Application.Users.DTOs;
 using FlyLib.Application.Users.Queries.GetUserById;
+using FlyLib.Application.Visiteds.DTOs;
 using FlyLib.Domain.Abstractions;
 using FlyLib.Domain.Entities;
 using Moq;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -19,7 +21,7 @@ namespace FlyLib.Tests.Unit.Users
             var mapper = new Mock<AutoMapper.IMapper>();
 
             repo.Setup(r => r.GetByIdAsync("1", default)).ReturnsAsync(user);
-            mapper.Setup(m => m.Map<UserDto>(user)).Returns(new UserDto("1", "usuario1", "usuario1"));
+            mapper.Setup(m => m.Map<UserDto>(user)).Returns(new UserDto("1", "usuario1", "usuario1", new List<VisitedDto>(), new List<RefreshToken>()));
 
             var handler = new GetUserByIdQueryHandler(repo.Object, mapper.Object);
 

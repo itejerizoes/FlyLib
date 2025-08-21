@@ -15,8 +15,8 @@ namespace FlyLib.Application.Countries.Queries.GetAllCountries
 
         public async Task<IEnumerable<CountryDto>> Handle(GetAllCountriesQuery request, CancellationToken ct)
         {
-            var data = await _repo.GetAllAsync(ct);
-            return data.Select(e => _mapper.Map<CountryDto>(e));
+            var items = await _repo.GetAllAsync(ct: ct);
+            return items.Select(_mapper.Map<CountryDto>);
         }
     }
 }

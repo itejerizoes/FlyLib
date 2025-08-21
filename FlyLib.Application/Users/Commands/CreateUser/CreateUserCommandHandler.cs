@@ -17,7 +17,7 @@ namespace FlyLib.Application.Users.Commands.CreateUser
 
         public async Task<UserDto> Handle(CreateUserCommand request, CancellationToken ct)
         {
-            var entity = new User(request.DisplayName) { Email = request.Email, DisplayName = request.DisplayName };
+            var entity = new User(request.DisplayName) { DisplayName = request.DisplayName, AuthProvider = request.AuthProvider };
             await _repo.AddAsync(entity, ct);
             await _uow.SaveChangesAsync(ct);
             return _mapper.Map<UserDto>(entity);

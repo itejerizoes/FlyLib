@@ -1,5 +1,4 @@
-﻿using Azure.Core;
-using FlyLib.API.DTOs.v1.Auth.Request;
+﻿using FlyLib.API.DTOs.v1.Auth.Request;
 using FlyLib.Domain.Abstractions;
 using FlyLib.Domain.Entities;
 using FlyLib.Infrastructure.Identity.Jwt;

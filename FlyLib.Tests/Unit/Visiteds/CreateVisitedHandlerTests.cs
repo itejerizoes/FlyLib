@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using FluentAssertions;
 using FlyLib.Application.Mapping;
+using FlyLib.Application.Photos.DTOs;
 using FlyLib.Application.Visiteds.Commands.CreateVisited;
 using FlyLib.Application.Visiteds.DTOs;
 using FlyLib.Domain.Abstractions;
@@ -26,7 +27,7 @@ namespace FlyLib.Tests.Unit.Visiteds
 
             var handler = new CreateVisitedCommandHandler(repo.Object, uow.Object, mapper);
 
-            var result = await handler.Handle(new CreateVisitedCommand("user1", 2, new List<Photo>()), default);
+            var result = await handler.Handle(new CreateVisitedCommand("user1", 2, new List<PhotoDto>()), default);
 
             result.Should().BeOfType<VisitedDto>();
             result.UserId.Should().Be("user1");

@@ -3,5 +3,15 @@ using MediatR;
 
 namespace FlyLib.Application.Photos.Queries.GetPhotoById
 {
-    public sealed record GetPhotoByIdQuery(int Id) : IRequest<PhotoDto?>;
+    public class GetPhotoByIdQuery : IRequest<PhotoDto?>
+    {
+        public int Id { get; set; }
+
+        public GetPhotoByIdQuery() { }
+
+        public GetPhotoByIdQuery(int id)
+        {
+            Id = id;
+        }
+    }
 }

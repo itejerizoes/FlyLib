@@ -17,14 +17,20 @@ namespace FlyLib.Application.Visiteds.Commands.CreateVisited
 
         public async Task<VisitedDto> Handle(CreateVisitedCommand request, CancellationToken ct)
         {
+            var photos = request.Photos
+                .Select(p => new Photo(p.Url) { Description = p.Description })
+                .ToList();
+
             var entity = new Visited(request.ProvinceId)
             {
                 UserId = request.UserId,
                 ProvinceId = request.ProvinceId,
-                Photos = request.Photos,
+                Photos = photos
             };
+
             await _repo.AddAsync(entity, ct);
             await _uow.SaveChangesAsync(ct);
+
             return _mapper.Map<VisitedDto>(entity);
         }
     }

@@ -87,7 +87,6 @@ namespace FlyLib.API.Controllers.v1
             return CreatedAtAction(nameof(GetById), new { id = created.CountryId }, response);
         }
 
-
         /// <summary>
         /// Actualizar un país.
         /// </summary>
@@ -99,11 +98,17 @@ namespace FlyLib.API.Controllers.v1
         {
             if (id != request.CountryId) return BadRequest("Route id and body id must match");
 
-            var cmd = _mapper.Map<UpdateCountryCommand>(request);
-            await _mediator.Send(cmd);
-            return NoContent();
+            try
+            {
+                var cmd = _mapper.Map<UpdateCountryCommand>(request);
+                await _mediator.Send(cmd);
+                return NoContent();
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
         }
-
 
         /// <summary>
         /// Eliminar un país.

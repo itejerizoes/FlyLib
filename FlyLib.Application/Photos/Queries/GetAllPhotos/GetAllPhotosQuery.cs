@@ -3,5 +3,8 @@ using MediatR;
 
 namespace FlyLib.Application.Photos.Queries.GetAllPhotos
 {
-    public sealed record GetAllPhotosQuery() : IRequest<IEnumerable<PhotoDto>>;
+    public class GetAllPhotosQuery : IRequest<IEnumerable<PhotoDto>>
+    {
+        public GetAllPhotosQuery() { }
+    }
 }

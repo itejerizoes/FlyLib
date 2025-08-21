@@ -3,5 +3,15 @@ using MediatR;
 
 namespace FlyLib.Application.Users.Queries.GetUserById
 {
-    public sealed record GetUserByIdQuery(string Id) : IRequest<UserDto?>;
+    public class GetUserByIdQuery : IRequest<UserDto?>
+    {
+        public string Id { get; set; }
+
+        public GetUserByIdQuery() { }
+
+        public GetUserByIdQuery(string id)
+        {
+            Id = id;
+        }
+    }
 }

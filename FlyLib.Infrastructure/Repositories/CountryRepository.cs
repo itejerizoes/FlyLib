@@ -7,10 +7,11 @@ namespace FlyLib.Infrastructure.Repositories
 {
     public class CountryRepository : Repository<Country>, ICountryRepository
     {
-        private readonly FlyLibDbContext _ctx;
-        public CountryRepository(FlyLibDbContext ctx) : base(ctx) => _ctx = ctx;
+        public CountryRepository(FlyLibDbContext context) : base(context) { }
 
-        public Task<Country?> GetByNameAsync(string name, CancellationToken ct = default)
-            => _ctx.Countries.AsNoTracking().FirstOrDefaultAsync(c => c.Name == name, ct);
+        public async Task<Country?> GetByNameAsync(string name, CancellationToken ct = default)
+            => await _context.Set<Country>()
+                             .AsNoTracking()
+                             .FirstOrDefaultAsync(c => c.Name == name, ct);
     }
 }

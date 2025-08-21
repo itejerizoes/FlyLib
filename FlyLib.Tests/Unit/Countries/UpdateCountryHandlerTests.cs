@@ -20,7 +20,7 @@ namespace FlyLib.Tests.Unit.Countries
             var repo = new Mock<ICountryRepository>();
             var uow = new Mock<IUnitOfWork>();
 
-            var country = new Country("Argentina") { CountryId = 1, Iso2 = "AR" };
+            var country = new Country("Argentina") { CountryId = 1, IsoCode = "AR" };
             repo.Setup(r => r.GetByIdAsync(1, default)).ReturnsAsync(country);
             repo.Setup(r => r.UpdateAsync(It.IsAny<Country>(), default)).Returns(Task.CompletedTask);
             uow.Setup(u => u.SaveChangesAsync(default)).ReturnsAsync(1);

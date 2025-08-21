@@ -3,5 +3,17 @@ using MediatR;
 
 namespace FlyLib.Application.Users.Commands.CreateUser
 {
-    public sealed record CreateUserCommand(string Email, string? DisplayName) : IRequest<UserDto>;
+    public class CreateUserCommand : IRequest<UserDto>
+    {
+        public string DisplayName { get; set; }
+        public string AuthProvider { get; set; }
+
+        public CreateUserCommand() { }
+
+        public CreateUserCommand(string displayName, string authProvider)
+        {
+            DisplayName = displayName;
+            AuthProvider = authProvider;
+        }
+    }
 }
