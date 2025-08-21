@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using FlyLib.Application.Common.Exceptions;
 using FlyLib.Application.Photos.DTOs;
 using FlyLib.Application.Photos.Queries.GetPhotoById;
 using FlyLib.Domain.Abstractions;
@@ -28,6 +29,20 @@ namespace FlyLib.Tests.Unit.Photos
             result.Should().NotBeNull();
             result.Url.Should().Be("http://url.com/foto.jpg");
             repo.Verify(r => r.GetByIdAsync(1, default), Times.Once);
+        }
+
+        [Fact]
+        public async Task Handle_ThrowsNotFoundException_WhenPhotoDoesNotExist()
+        {
+            var repo = new Mock<IPhotoRepository>();
+            var mapper = new Mock<AutoMapper.IMapper>();
+
+            repo.Setup(r => r.GetByIdAsync(99, default)).ReturnsAsync((Photo)null);
+
+            var handler = new GetPhotoByIdQueryHandler(repo.Object, mapper.Object);
+
+            await Assert.ThrowsAsync<NotFoundException>(() =>
+                handler.Handle(new GetPhotoByIdQuery(99), default));
         }
     }
 }

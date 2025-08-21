@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using FlyLib.Application.Common.Exceptions;
 using FlyLib.Application.Photos.DTOs;
 using FlyLib.Application.Visiteds.DTOs;
 using FlyLib.Application.Visiteds.Queries.GetVisitedById;
@@ -32,6 +33,20 @@ namespace FlyLib.Tests.Unit.Visiteds
             result.Should().NotBeNull();
             result.Id.Should().Be(1);
             repo.Verify(r => r.GetByIdAsync(1, default), Times.Once);
+        }
+
+        [Fact]
+        public async Task Handle_ThrowsNotFoundException_WhenVisitedDoesNotExist()
+        {
+            var repo = new Mock<IVisitedRepository>();
+            var mapper = new Mock<AutoMapper.IMapper>();
+
+            repo.Setup(r => r.GetByIdAsync(99, default)).ReturnsAsync((Visited)null);
+
+            var handler = new GetVisitedByIdQueryHandler(repo.Object, mapper.Object);
+
+            await Assert.ThrowsAsync<NotFoundException>(() =>
+                handler.Handle(new GetVisitedByIdQuery(99), default));
         }
     }
 }

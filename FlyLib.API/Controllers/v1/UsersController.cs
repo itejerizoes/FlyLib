@@ -57,7 +57,7 @@ namespace FlyLib.API.Controllers.v1
         /// <summary>
         /// Crear un nuevo usuario.
         /// </summary>
-        [Authorize(Roles = AppRoles.Admin)]
+        [Authorize(Roles = $"{AppRoles.Admin},{AppRoles.User}")]
         [HttpPost]
         [ProducesResponseType(typeof(UserResponseV1), 201)]
         [ProducesResponseType(400)]
@@ -73,7 +73,7 @@ namespace FlyLib.API.Controllers.v1
         /// <summary>
         /// Actualizar un usuario existente.
         /// </summary>
-        [Authorize(Roles = AppRoles.Admin)]
+        [Authorize(Roles = $"{AppRoles.Admin},{AppRoles.User}")]
         [HttpPut("{id}")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]

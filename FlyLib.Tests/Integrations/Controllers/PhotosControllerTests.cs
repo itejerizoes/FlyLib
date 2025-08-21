@@ -10,6 +10,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using TestFlyLibrary.Tests.Utilities;
 using Xunit;
@@ -35,24 +36,47 @@ namespace FlyLib.Tests.Integrations.Controllers
             await db.Database.EnsureDeletedAsync();
             await db.Database.EnsureCreatedAsync();
             SeedData.Initialize(db);
+            TestAuthHandler.ResetClaims();
         }
 
-        public Task DisposeAsync() => Task.CompletedTask;
+        public Task DisposeAsync()
+        {
+            TestAuthHandler.ResetClaims();
+            return Task.CompletedTask;
+        }
 
         [Fact]
         public async Task GetAll_ShouldReturnSeededPhotos()
         {
+            TestAuthHandler.TestClaims = new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, "test-user"),
+                new Claim(ClaimTypes.Email, "test@example.com"),
+                new Claim(ClaimTypes.Name, "Test User"),
+                new Claim(ClaimTypes.Role, "Admin")
+            };
+
             var response = await _client.GetAsync("/api/v1/photos");
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
             var photos = await response.Content.ReadFromJsonAsync<List<PhotoResponseV1>>();
             photos.Should().NotBeNull();
             photos.Should().HaveCount(c => c >= 2);
+
+            TestAuthHandler.ResetClaims();
         }
 
         [Fact]
         public async Task GetById_ShouldReturnSeededPhoto()
         {
+            TestAuthHandler.TestClaims = new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, "test-user"),
+                new Claim(ClaimTypes.Email, "test@example.com"),
+                new Claim(ClaimTypes.Name, "Test User"),
+                new Claim(ClaimTypes.Role, "Admin")
+            };
+
             int photoId;
             using (var scope = _factory.Services.CreateScope())
             {
@@ -60,19 +84,26 @@ namespace FlyLib.Tests.Integrations.Controllers
                 photoId = context.Photos.First().PhotoId;
             }
 
-            using (var verifyScope = _factory.Services.CreateScope())
-            {
-                var response = await _client.GetAsync($"/api/v1/photos/{photoId}");
-                response.StatusCode.Should().Be(HttpStatusCode.OK);
+            var response = await _client.GetAsync($"/api/v1/photos/{photoId}");
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-                var photo = await response.Content.ReadFromJsonAsync<PhotoResponseV1>();
-                photo!.Id.Should().Be(photoId);
-            }
+            var photo = await response.Content.ReadFromJsonAsync<PhotoResponseV1>();
+            photo!.Id.Should().Be(photoId);
+
+            TestAuthHandler.ResetClaims();
         }
 
         [Fact]
         public async Task Create_ShouldAddPhoto()
         {
+            TestAuthHandler.TestClaims = new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, "test-user"),
+                new Claim(ClaimTypes.Email, "test@example.com"),
+                new Claim(ClaimTypes.Name, "Test User"),
+                new Claim(ClaimTypes.Role, "Admin")
+            };
+
             int visitedId;
             using (var scope = _factory.Services.CreateScope())
             {
@@ -89,7 +120,6 @@ namespace FlyLib.Tests.Integrations.Controllers
             created!.Url.Should().Be("http://test/photos/new.jpg");
             created.Description.Should().Be("Nueva Foto");
             created.VisitedId.Should().Be(visitedId);
-
             int newPhotoId = created.Id;
 
             using (var verifyScope = _factory.Services.CreateScope())
@@ -101,11 +131,21 @@ namespace FlyLib.Tests.Integrations.Controllers
                 photoDb.Description.Should().Be("Nueva Foto");
                 photoDb.VisitedId.Should().Be(visitedId);
             }
+
+            TestAuthHandler.ResetClaims();
         }
 
         [Fact]
         public async Task Update_ShouldModifyPhoto()
         {
+            TestAuthHandler.TestClaims = new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, "test-user"),
+                new Claim(ClaimTypes.Email, "test@example.com"),
+                new Claim(ClaimTypes.Name, "Test User"),
+                new Claim(ClaimTypes.Role, "Admin")
+            };
+
             int photoId;
             int visitedId;
             using (var scope = _factory.Services.CreateScope())
@@ -120,43 +160,64 @@ namespace FlyLib.Tests.Integrations.Controllers
             var response = await _client.PutAsJsonAsync($"/api/v1/photos/{photoId}", updateRequest);
             response.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
+            var getResponse = await _client.GetAsync($"/api/v1/photos/{photoId}");
+            getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            var updated = await getResponse.Content.ReadFromJsonAsync<PhotoResponseV1>();
+            updated!.Description.Should().Be("Updated Photo");
+
             using (var verifyScope = _factory.Services.CreateScope())
             {
-                var getResponse = await _client.GetAsync($"/api/v1/photos/{photoId}");
-                getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-
-                var updated = await getResponse.Content.ReadFromJsonAsync<PhotoResponseV1>();
-                updated!.Description.Should().Be("Updated Photo");
-
                 var verifyContext = verifyScope.ServiceProvider.GetRequiredService<FlyLibDbContext>();
                 var photoDb = await verifyContext.Photos.FindAsync(photoId);
                 photoDb!.Description.Should().Be("Updated Photo");
                 photoDb.Url.Should().Be("http://test/photos/updated.jpg");
             }
+
+            TestAuthHandler.ResetClaims();
         }
 
         [Fact]
         public async Task Delete_ShouldRemovePhoto()
         {
+            TestAuthHandler.TestClaims = new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, "test-user"),
+                new Claim(ClaimTypes.Email, "test@example.com"),
+                new Claim(ClaimTypes.Name, "Test User"),
+                new Claim(ClaimTypes.Role, "Admin")
+            };
+
             int photoId;
             using (var scope = _factory.Services.CreateScope())
             {
                 var context = scope.ServiceProvider.GetRequiredService<FlyLibDbContext>();
                 photoId = context.Photos.Last().PhotoId;
-
-                var response = await _client.DeleteAsync($"/api/v1/photos/{photoId}");
-                response.StatusCode.Should().Be(HttpStatusCode.NoContent);
             }
+
+            var response = await _client.DeleteAsync($"/api/v1/photos/{photoId}");
+            response.StatusCode.Should().Be(HttpStatusCode.NoContent);
+
+            // Setea rol admin para GET
+            TestAuthHandler.TestClaims = new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, "test-user"),
+                new Claim(ClaimTypes.Email, "test@example.com"),
+                new Claim(ClaimTypes.Name, "Test User"),
+                new Claim(ClaimTypes.Role, "Admin")
+            };
+
+            var getResponse = await _client.GetAsync($"/api/v1/photos/{photoId}");
+            getResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
 
             using (var verifyScope = _factory.Services.CreateScope())
             {
-                var getResponse = await _client.GetAsync($"/api/v1/photos/{photoId}");
-                getResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
-
                 var verifyContext = verifyScope.ServiceProvider.GetRequiredService<FlyLibDbContext>();
                 var photoDb = await verifyContext.Photos.FindAsync(photoId);
                 photoDb.Should().BeNull();
             }
+
+            TestAuthHandler.ResetClaims();
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using FlyLib.Domain.Abstractions;
+﻿using FlyLib.Application.Common.Exceptions;
+using FlyLib.Domain.Abstractions;
 using MediatR;
 
 namespace FlyLib.Application.Countries.Commands.UpdateCountry
@@ -14,7 +15,9 @@ namespace FlyLib.Application.Countries.Commands.UpdateCountry
         public async Task<Unit> Handle(UpdateCountryCommand request, CancellationToken ct)
         {
             var entity = await _repo.GetByIdAsync(request.CountryId, ct);
-            if (entity is null) throw new KeyNotFoundException($"Country {request.CountryId} not found");
+            if (entity is null)
+                throw new NotFoundException($"País con id {request.CountryId} no encontrado.");
+
             entity.Name = request.Name;
             entity.IsoCode = request.IsoCode;
             await _repo.UpdateAsync(entity, ct);

@@ -1,4 +1,5 @@
-﻿using FlyLib.Domain.Abstractions;
+﻿using FlyLib.Application.Common.Exceptions;
+using FlyLib.Domain.Abstractions;
 using FlyLib.Domain.Entities;
 using MediatR;
 
@@ -15,7 +16,8 @@ namespace FlyLib.Application.Visiteds.Commands.UpdateVisited
         public async Task<Unit> Handle(UpdateVisitedCommand request, CancellationToken ct)
         {
             var entity = await _repo.GetByIdAsync(request.Id, ct);
-            if (entity is null) throw new KeyNotFoundException($"Visited {request.Id} not found");
+            if (entity is null)
+                throw new NotFoundException($"Visitado con id {request.Id} no encontrado.");
 
             entity.UserId = request.UserId;
             entity.ProvinceId = request.ProvinceId;

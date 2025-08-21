@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using FluentAssertions;
+using FlyLib.Application.Common.Exceptions;
 using FlyLib.Application.Mapping;
 using FlyLib.Application.Provinces.Commands.UpdateProvince;
 using FlyLib.Domain.Abstractions;
@@ -31,6 +32,20 @@ namespace FlyLib.Tests.Unit.Provinces
             result.Should().BeOfType<MediatR.Unit>();
             repo.Verify(r => r.UpdateAsync(It.IsAny<Province>(), default), Times.Once);
             uow.Verify(u => u.SaveChangesAsync(default), Times.Once);
+        }
+
+        [Fact]
+        public async Task Handle_ThrowsNotFoundException_WhenProvinceDoesNotExist()
+        {
+            var repo = new Mock<IProvinceRepository>();
+            var uow = new Mock<IUnitOfWork>();
+
+            repo.Setup(r => r.GetByIdAsync(99, default)).ReturnsAsync((Province)null);
+
+            var handler = new UpdateProvinceCommandHandler(repo.Object, uow.Object);
+
+            await Assert.ThrowsAsync<NotFoundException>(() =>
+                handler.Handle(new UpdateProvinceCommand(99, "NoExiste", 1), default));
         }
     }
 }

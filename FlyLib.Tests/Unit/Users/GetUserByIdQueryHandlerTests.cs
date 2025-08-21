@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using FlyLib.Application.Common.Exceptions;
 using FlyLib.Application.Users.DTOs;
 using FlyLib.Application.Users.Queries.GetUserById;
 using FlyLib.Application.Visiteds.DTOs;
@@ -30,6 +31,20 @@ namespace FlyLib.Tests.Unit.Users
             result.Should().NotBeNull();
             result.DisplayName.Should().Be("usuario1");
             repo.Verify(r => r.GetByIdAsync("1", default), Times.Once);
+        }
+
+        [Fact]
+        public async Task Handle_ThrowsNotFoundException_WhenUserDoesNotExist()
+        {
+            var repo = new Mock<IUserRepository>();
+            var mapper = new Mock<AutoMapper.IMapper>();
+
+            repo.Setup(r => r.GetByIdAsync("noexiste", default)).ReturnsAsync((User)null);
+
+            var handler = new GetUserByIdQueryHandler(repo.Object, mapper.Object);
+
+            await Assert.ThrowsAsync<NotFoundException>(() =>
+                handler.Handle(new GetUserByIdQuery("noexiste"), default));
         }
     }
 }

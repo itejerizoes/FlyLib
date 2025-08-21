@@ -1,4 +1,5 @@
-﻿using FlyLib.Domain.Abstractions;
+﻿using FlyLib.Application.Common.Exceptions;
+using FlyLib.Domain.Abstractions;
 using MediatR;
 
 namespace FlyLib.Application.Provinces.Commands.UpdateProvince
@@ -14,7 +15,9 @@ namespace FlyLib.Application.Provinces.Commands.UpdateProvince
         public async Task<Unit> Handle(UpdateProvinceCommand request, CancellationToken ct)
         {
             var entity = await _repo.GetByIdAsync(request.ProvinceId, ct);
-            if (entity is null) throw new KeyNotFoundException($"Province {request.ProvinceId} not found");
+            if (entity is null)
+                throw new NotFoundException($"Provincia con id {request.ProvinceId} no encontrada.");
+
             entity.Name = request.Name;
             entity.CountryId = request.CountryId;
             await _repo.UpdateAsync(entity, ct);

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using FluentAssertions;
+using FlyLib.Application.Common.Exceptions;
 using FlyLib.Application.Mapping;
 using FlyLib.Application.Photos.Commands.UpdatePhoto;
 using FlyLib.Domain.Abstractions;
@@ -31,6 +32,20 @@ namespace FlyLib.Tests.Unit.Photos
             result.Should().BeOfType<MediatR.Unit>();
             repo.Verify(r => r.UpdateAsync(It.IsAny<Photo>(), default), Times.Once);
             uow.Verify(u => u.SaveChangesAsync(default), Times.Once);
+        }
+
+        [Fact]
+        public async Task Handle_ThrowsNotFoundException_WhenPhotoDoesNotExist()
+        {
+            var repo = new Mock<IPhotoRepository>();
+            var uow = new Mock<IUnitOfWork>();
+
+            repo.Setup(r => r.GetByIdAsync(99, default)).ReturnsAsync((Photo)null);
+
+            var handler = new UpdatePhotoCommandHandler(repo.Object, uow.Object);
+
+            await Assert.ThrowsAsync<NotFoundException>(() =>
+                handler.Handle(new UpdatePhotoCommand(99, "url", "desc", 1), default));
         }
     }
 }

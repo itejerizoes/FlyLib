@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using FlyLib.Application.Common.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Text.Json;
@@ -28,7 +29,7 @@ namespace FlyLib.API.Middleware
                     }
                     else if (context.Response.StatusCode == (int)HttpStatusCode.Forbidden)
                     {
-                        await WriteProblemDetailsAsync(context, HttpStatusCode.Forbidden, "Acceso denegado.");
+                        await WriteProblemDetailsAsync(context, HttpStatusCode.Forbidden, "Acceso prohibido.");
                     }
                 }
             }
@@ -58,6 +59,22 @@ namespace FlyLib.API.Middleware
                     };
 
                     await WriteResponseAsync(context, problemDetails);
+                }
+            }
+            catch (NotFoundException ex)
+            {
+                _logger.LogWarning(ex, "No encontrado en {Path} [{Method}]", context.Request.Path, context.Request.Method);
+                if (!context.Response.HasStarted)
+                {
+                    await WriteProblemDetailsAsync(context, HttpStatusCode.NotFound, "No encontrado.", ex.Message);
+                }
+            }
+            catch (ForbiddenException ex)
+            {
+                _logger.LogWarning(ex, "Acceso prohibido en {Path} [{Method}]", context.Request.Path, context.Request.Method);
+                if (!context.Response.HasStarted)
+                {
+                    await WriteProblemDetailsAsync(context, HttpStatusCode.Forbidden, "Acceso prohibido.", ex.Message);
                 }
             }
             catch (Exception ex)

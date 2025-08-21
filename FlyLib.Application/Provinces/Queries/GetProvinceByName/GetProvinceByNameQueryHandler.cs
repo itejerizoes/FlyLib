@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FlyLib.Application.Common.Exceptions;
 using FlyLib.Application.Provinces.DTOs;
 using FlyLib.Domain.Abstractions;
 using MediatR;
@@ -16,7 +17,10 @@ namespace FlyLib.Application.Provinces.Queries.GetProvinceByName
         public async Task<ProvinceDto?> Handle(GetProvinceByNameQuery request, CancellationToken ct)
         {
             var entity = await _repo.GetByNameAsync(request.Name, ct);
-            return entity is null ? null : _mapper.Map<ProvinceDto>(entity);
+            if (entity is null)
+                throw new NotFoundException($"Provincia con nombre '{request.Name}' no encontrada.");
+
+            return _mapper.Map<ProvinceDto>(entity);
         }
     }
 }

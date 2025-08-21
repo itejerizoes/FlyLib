@@ -1,4 +1,5 @@
-﻿using FlyLib.Domain.Abstractions;
+﻿using FlyLib.Application.Common.Exceptions;
+using FlyLib.Domain.Abstractions;
 using MediatR;
 
 namespace FlyLib.Application.Provinces.Commands.DeleteProvince
@@ -13,6 +14,10 @@ namespace FlyLib.Application.Provinces.Commands.DeleteProvince
 
         public async Task<Unit> Handle(DeleteProvinceCommand request, CancellationToken ct)
         {
+            var entity = await _repo.GetByIdAsync(request.Id, ct);
+            if (entity is null)
+                throw new NotFoundException($"Provincia con id {request.Id} no encontrada.");
+
             await _repo.DeleteAsync(request.Id, ct);
             await _uow.SaveChangesAsync(ct);
             return Unit.Value;
