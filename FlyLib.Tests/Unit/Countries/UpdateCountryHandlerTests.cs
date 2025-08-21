@@ -1,10 +1,11 @@
 ﻿using AutoMapper;
 using FluentAssertions;
+using FlyLib.Application.Common.Exceptions;
 using FlyLib.Application.Countries.Commands.UpdateCountry;
-using MediatR;
 using FlyLib.Application.Mapping;
 using FlyLib.Domain.Abstractions;
 using FlyLib.Domain.Entities;
+using MediatR;
 using Moq;
 using System.Threading.Tasks;
 using Xunit;
@@ -32,6 +33,20 @@ namespace FlyLib.Tests.Unit.Countries
             result.Should().BeOfType<MediatR.Unit>();
             repo.Verify(r => r.UpdateAsync(It.IsAny<Country>(), default), Times.Once);
             uow.Verify(u => u.SaveChangesAsync(default), Times.Once);
+        }
+
+        [Fact]
+        public async Task Handle_ThrowsNotFoundException_WhenCountryDoesNotExist()
+        {
+            var repo = new Mock<ICountryRepository>();
+            var uow = new Mock<IUnitOfWork>();
+
+            repo.Setup(r => r.GetByIdAsync(99, default)).ReturnsAsync((Country)null);
+
+            var handler = new UpdateCountryCommandHandler(repo.Object, uow.Object);
+
+            await Assert.ThrowsAsync<NotFoundException>(() =>
+                handler.Handle(new UpdateCountryCommand(99, "NoExiste", "XX"), default));
         }
     }
 }

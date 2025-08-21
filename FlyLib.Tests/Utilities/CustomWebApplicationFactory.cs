@@ -18,12 +18,9 @@ namespace TestFlyLibrary.Tests.Utilities
         {
             builder.UseEnvironment("Test");
 
-
             builder.ConfigureServices(services =>
             {
-                // =========================
                 // Reemplazar DbContext por InMemory con nombre único
-                // =========================
                 var dbDescriptor = services.SingleOrDefault(d => d.ServiceType == typeof(DbContextOptions<FlyLibDbContext>));
                 if (dbDescriptor != null) services.Remove(dbDescriptor);
 
@@ -33,17 +30,13 @@ namespace TestFlyLibrary.Tests.Utilities
 
                 services.AddFlyLibraryServices(new ConfigurationBuilder().Build(), useInMemory: true);
 
-                // =========================
                 // Remover autenticación original
-                // =========================
                 var authDescriptor = services.SingleOrDefault(
                     d => d.ServiceType == typeof(IAuthenticationSchemeProvider));
                 if (authDescriptor != null)
                     services.Remove(authDescriptor);
 
-                // =========================
                 // Configurar autenticación de test
-                // =========================
                 services.AddAuthentication(options =>
                 {
                     options.DefaultAuthenticateScheme = TestAuthHandler.TestScheme;
@@ -52,9 +45,7 @@ namespace TestFlyLibrary.Tests.Utilities
                 .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(
                     TestAuthHandler.TestScheme, options => { });
 
-                // =========================
                 // Semilla de datos
-                // =========================
                 var sp = services.BuildServiceProvider();
                 using var scope = sp.CreateScope();
                 var db = scope.ServiceProvider.GetRequiredService<FlyLibDbContext>();
@@ -63,6 +54,9 @@ namespace TestFlyLibrary.Tests.Utilities
                 db.Database.EnsureCreated();
 
                 SeedData.Initialize(db);
+
+                // Resetear claims de test para cada suite
+                TestAuthHandler.ResetClaims();
             });
         }
     }

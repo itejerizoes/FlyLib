@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FlyLib.Application.Common.Exceptions;
 using FlyLib.Application.Countries.DTOs;
 using FlyLib.Domain.Abstractions;
 using MediatR;
@@ -16,7 +17,10 @@ namespace FlyLib.Application.Countries.Queries.GetCountryById
         public async Task<CountryDto?> Handle(GetCountryByIdQuery request, CancellationToken ct)
         {
             var entity = await _repo.GetByIdAsync(request.Id, ct);
-            return entity is null ? null : _mapper.Map<CountryDto>(entity);
+            if (entity is null)
+                throw new NotFoundException($"País con id {request.Id} no encontrado.");
+
+            return _mapper.Map<CountryDto>(entity);
         }
     }
 }

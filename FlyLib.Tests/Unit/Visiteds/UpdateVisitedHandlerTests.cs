@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using FluentAssertions;
+using FlyLib.Application.Common.Exceptions;
 using FlyLib.Application.Mapping;
 using FlyLib.Application.Photos.DTOs;
 using FlyLib.Application.Visiteds.Commands.UpdateVisited;
@@ -53,6 +54,22 @@ namespace FlyLib.Tests.Unit.Visiteds
             result.Should().BeOfType<MediatR.Unit>();
             repo.Verify(r => r.UpdateAsync(It.IsAny<Visited>(), default), Times.Once);
             uow.Verify(u => u.SaveChangesAsync(default), Times.Once);
+        }
+
+        [Fact]
+        public async Task Handle_ThrowsNotFoundException_WhenVisitedDoesNotExist()
+        {
+            var repo = new Mock<IVisitedRepository>();
+            var uow = new Mock<IUnitOfWork>();
+
+            repo.Setup(r => r.GetByIdAsync(99, default)).ReturnsAsync((Visited)null);
+
+            var handler = new UpdateVisitedCommandHandler(repo.Object, uow.Object);
+
+            var photoDtos = new List<PhotoDto>();
+
+            await Assert.ThrowsAsync<NotFoundException>(() =>
+                handler.Handle(new UpdateVisitedCommand(99, "user1", 2, photoDtos), default));
         }
     }
 }

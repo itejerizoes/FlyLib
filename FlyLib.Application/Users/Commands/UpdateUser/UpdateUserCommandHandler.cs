@@ -1,4 +1,5 @@
-﻿using FlyLib.Domain.Abstractions;
+﻿using FlyLib.Application.Common.Exceptions;
+using FlyLib.Domain.Abstractions;
 using MediatR;
 
 namespace FlyLib.Application.Users.Commands.UpdateUser
@@ -14,7 +15,9 @@ namespace FlyLib.Application.Users.Commands.UpdateUser
         public async Task<Unit> Handle(UpdateUserCommand request, CancellationToken ct)
         {
             var entity = await _repo.GetByIdAsync(request.Id, ct);
-            if (entity is null) throw new KeyNotFoundException($"User {request.Id} not found");
+            if (entity is null)
+                throw new NotFoundException($"Usuario con id {request.Id} no encontrado.");
+
             entity.DisplayName = request.DisplayName;
             entity.AuthProvider = request.AuthProvider;
             await _repo.UpdateAsync(entity, ct);

@@ -1,4 +1,5 @@
-﻿using FlyLib.Domain.Abstractions;
+﻿using FlyLib.Application.Common.Exceptions;
+using FlyLib.Domain.Abstractions;
 using MediatR;
 
 namespace FlyLib.Application.Photos.Commands.UpdatePhoto
@@ -14,7 +15,9 @@ namespace FlyLib.Application.Photos.Commands.UpdatePhoto
         public async Task<Unit> Handle(UpdatePhotoCommand request, CancellationToken ct)
         {
             var entity = await _repo.GetByIdAsync(request.PhotoId, ct);
-            if (entity is null) throw new KeyNotFoundException($"Photo {request.PhotoId} not found");
+            if (entity is null)
+                throw new NotFoundException($"Foto con id {request.PhotoId} no encontrada.");
+
             entity.Url = request.Url;
             entity.Description = request.Description;
             entity.VisitedId = request.VisitedId;

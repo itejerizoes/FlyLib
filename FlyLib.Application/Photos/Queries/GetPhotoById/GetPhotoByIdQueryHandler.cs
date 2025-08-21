@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FlyLib.Application.Common.Exceptions;
 using FlyLib.Application.Photos.DTOs;
 using FlyLib.Domain.Abstractions;
 using MediatR;
@@ -16,7 +17,10 @@ namespace FlyLib.Application.Photos.Queries.GetPhotoById
         public async Task<PhotoDto?> Handle(GetPhotoByIdQuery request, CancellationToken ct)
         {
             var entity = await _repo.GetByIdAsync(request.Id, ct);
-            return entity is null ? null : _mapper.Map<PhotoDto>(entity);
+            if (entity is null)
+                throw new NotFoundException($"Foto con id {request.Id} no encontrada.");
+
+            return _mapper.Map<PhotoDto>(entity);
         }
     }
 }

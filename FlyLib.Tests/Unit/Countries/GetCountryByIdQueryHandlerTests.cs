@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using FlyLib.Application.Common.Exceptions;
 using FlyLib.Application.Countries.DTOs;
 using FlyLib.Application.Countries.Queries.GetCountryById;
 using FlyLib.Application.Provinces.DTOs;
@@ -30,6 +31,20 @@ namespace FlyLib.Tests.Unit.Countries
             result.Should().NotBeNull();
             result.Name.Should().Be("Argentina");
             repo.Verify(r => r.GetByIdAsync(1, default), Times.Once);
+        }
+
+        [Fact]
+        public async Task Handle_ThrowsNotFoundException_WhenCountryDoesNotExist()
+        {
+            var repo = new Mock<ICountryRepository>();
+            var mapper = new Mock<AutoMapper.IMapper>();
+
+            repo.Setup(r => r.GetByIdAsync(99, default)).ReturnsAsync((Country)null);
+
+            var handler = new GetCountryByIdQueryHandler(repo.Object, mapper.Object);
+
+            await Assert.ThrowsAsync<NotFoundException>(() =>
+                handler.Handle(new GetCountryByIdQuery(99), default));
         }
     }
 }

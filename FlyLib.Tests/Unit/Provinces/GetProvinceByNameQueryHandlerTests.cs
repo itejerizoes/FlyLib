@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using FlyLib.Application.Common.Exceptions;
 using FlyLib.Application.Provinces.DTOs;
 using FlyLib.Application.Provinces.Queries.GetProvinceByName;
 using FlyLib.Application.Visiteds.DTOs;
@@ -30,6 +31,20 @@ namespace FlyLib.Tests.Unit.Provinces
             result.Should().NotBeNull();
             result.Name.Should().Be("Buenos Aires");
             repo.Verify(r => r.GetByNameAsync("Buenos Aires", default), Times.Once);
+        }
+
+        [Fact]
+        public async Task Handle_ThrowsNotFoundException_WhenProvinceDoesNotExist()
+        {
+            var repo = new Mock<IProvinceRepository>();
+            var mapper = new Mock<AutoMapper.IMapper>();
+
+            repo.Setup(r => r.GetByNameAsync("NoExiste", default)).ReturnsAsync((Province)null);
+
+            var handler = new GetProvinceByNameQueryHandler(repo.Object, mapper.Object);
+
+            await Assert.ThrowsAsync<NotFoundException>(() =>
+                handler.Handle(new GetProvinceByNameQuery("NoExiste"), default));
         }
     }
 }
