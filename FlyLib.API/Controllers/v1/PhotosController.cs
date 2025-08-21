@@ -68,7 +68,7 @@ namespace FlyLib.API.Controllers.v1
             var created = await _mediator.Send(cmd);
 
             var response = _mapper.Map<PhotoResponseV1>(created);
-            return CreatedAtAction(nameof(GetById), new { id = created.Id }, response);
+            return CreatedAtAction(nameof(GetById), new { id = created.PhotoId }, response);
         }
 
         /// <summary>

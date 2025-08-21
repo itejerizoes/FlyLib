@@ -15,7 +15,7 @@ namespace FlyLib.Application.Visiteds.Queries.GetAllVisiteds
 
         public async Task<IEnumerable<VisitedDto>> Handle(GetAllVisitedsQuery request, CancellationToken ct)
         {
-            var items = await _repo.GetAllAsync(ct);
+            var items = await _repo.GetAllAsync(ct: ct);
             return items.Select(_mapper.Map<VisitedDto>);
         }
     }

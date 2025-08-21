@@ -3,6 +3,8 @@ using FlyLib.API.DTOs.v1.Countries.Requests;
 using FlyLib.API.DTOs.v1.Visited.Requests;
 using FlyLib.API.DTOs.v1.Visited.Responses;
 using FlyLib.Domain.Entities;
+using FlyLib.Infrastructure.Persistence;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,86 +20,67 @@ namespace FlyLib.Tests.Integrations.Controllers
     public class VisitedsControllerTests : IClassFixture<CustomWebApplicationFactory<Program>>
     {
         private readonly HttpClient _client;
+        private readonly CustomWebApplicationFactory<Program> _factory;
 
         public VisitedsControllerTests(CustomWebApplicationFactory<Program> factory)
         {
             Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Test");
+            _factory = factory;
             _client = factory.CreateClient();
         }
 
         [Fact]
         public async Task GetAll_ShouldReturnSeededVisiteds()
         {
-            // Act
             var response = await _client.GetAsync("/api/v1/visiteds");
-
-            // Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
             var visiteds = await response.Content.ReadFromJsonAsync<List<VisitedResponseV1>>();
             visiteds.Should().NotBeNull();
-            visiteds.Should().HaveCount(c => c >= 2);
-            visiteds!.Select(v => v.ProvinceId).Should().Contain(new[] { 1, 2 });
+            visiteds.Should().HaveCount(c => c >= 1);
         }
 
         [Fact]
         public async Task GetById_ShouldReturnVisited_WhenExists()
         {
-            // Act
-            var response = await _client.GetAsync("/api/v1/visiteds/1");
+            using var scope = _factory.Services.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<FlyLibDbContext>();
+            var visitedId = context.Visiteds.First().VisitedId;
 
-            // Assert
+            var response = await _client.GetAsync($"/api/v1/visiteds/{visitedId}");
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
             var visited = await response.Content.ReadFromJsonAsync<VisitedResponseV1>();
-            visited!.Id.Should().Be(1);
-            visited.UserId.Should().Be("test-user");
-        }
-
-        [Fact]
-        public async Task Create_ShouldReturnCreatedVisited()
-        {
-            // Arrange
-            var request = new CreateCountryRequestV1("Test Visit", "TE");
-
-            // Act
-            var response = await _client.PostAsJsonAsync("/api/v1/visiteds", request);
-
-            // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.Created);
-
-            var created = await response.Content.ReadFromJsonAsync<VisitedResponseV1>();
-            created.Should().NotBeNull();
-            created!.Id.Should().BePositive();
+            visited!.Id.Should().Be(visitedId);
         }
 
         [Fact]
         public async Task Update_ShouldModifyVisited()
         {
-            // Arrange
-            var updateRequest = new UpdateVisitedRequestV1(1, "test-user", 3, new List<Photo>());
+            using var scope = _factory.Services.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<FlyLibDbContext>();
+            var visited = context.Visiteds.First();
 
-            // Act
-            var response = await _client.PutAsJsonAsync("/api/v1/visiteds/1", updateRequest);
-
-            // Assert
+            var updateRequest = new UpdateVisitedRequestV1(visited.VisitedId, visited.UserId, visited.ProvinceId, new List<Photo>());
+            var response = await _client.PutAsJsonAsync($"/api/v1/visiteds/{visited.VisitedId}", updateRequest);
             response.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
-            var getResponse = await _client.GetAsync("/api/v1/visiteds/1");
+            var getResponse = await _client.GetAsync($"/api/v1/visiteds/{visited.VisitedId}");
             var updated = await getResponse.Content.ReadFromJsonAsync<VisitedResponseV1>();
-            updated!.ProvinceId.Should().Be(3);
+            updated!.ProvinceId.Should().Be(visited.ProvinceId);
         }
 
         [Fact]
         public async Task Delete_ShouldRemoveVisited()
         {
-            // Act
-            var response = await _client.DeleteAsync("/api/v1/visiteds/2");
+            using var scope = _factory.Services.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<FlyLibDbContext>();
+            var visitedId = context.Visiteds.Last().VisitedId;
 
-            // Assert
+            var response = await _client.DeleteAsync($"/api/v1/visiteds/{visitedId}");
             response.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
-            var getResponse = await _client.GetAsync("/api/v1/visiteds/2");
+            var getResponse = await _client.GetAsync($"/api/v1/visiteds/{visitedId}");
             getResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
         }
     }

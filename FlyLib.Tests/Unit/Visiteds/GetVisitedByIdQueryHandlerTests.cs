@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using FlyLib.Application.Photos.DTOs;
 using FlyLib.Application.Visiteds.DTOs;
 using FlyLib.Application.Visiteds.Queries.GetVisitedById;
 using FlyLib.Domain.Abstractions;
@@ -22,7 +23,7 @@ namespace FlyLib.Tests.Unit.Visiteds
             var mapper = new Mock<AutoMapper.IMapper>();
 
             repo.Setup(r => r.GetByIdAsync(1, default)).ReturnsAsync(visited);
-            mapper.Setup(m => m.Map<VisitedDto>(visited)).Returns(new VisitedDto(1, "user1", 2, new List<Photo>()));
+            mapper.Setup(m => m.Map<VisitedDto>(visited)).Returns(new VisitedDto(1, "user1", 2, new List<PhotoDto>()));
 
             var handler = new GetVisitedByIdQueryHandler(repo.Object, mapper.Object);
 

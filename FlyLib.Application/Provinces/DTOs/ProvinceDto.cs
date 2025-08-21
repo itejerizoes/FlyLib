@@ -1,4 +1,6 @@
-﻿namespace FlyLib.Application.Provinces.DTOs
+﻿using FlyLib.Application.Visiteds.DTOs;
+
+namespace FlyLib.Application.Provinces.DTOs
 {
-    public sealed record ProvinceDto(int ProvinceId, string Name, int CountryId);
+    public sealed record ProvinceDto(int ProvinceId, string Name, int CountryId, IEnumerable<VisitedDto> Visiteds);
 }

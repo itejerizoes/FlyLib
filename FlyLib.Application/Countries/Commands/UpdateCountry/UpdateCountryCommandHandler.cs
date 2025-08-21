@@ -16,7 +16,7 @@ namespace FlyLib.Application.Countries.Commands.UpdateCountry
             var entity = await _repo.GetByIdAsync(request.CountryId, ct);
             if (entity is null) throw new KeyNotFoundException($"Country {request.CountryId} not found");
             entity.Name = request.Name;
-            entity.Iso2 = request.Iso2;
+            entity.IsoCode = request.IsoCode;
             await _repo.UpdateAsync(entity, ct);
             await _uow.SaveChangesAsync(ct);
             return Unit.Value;

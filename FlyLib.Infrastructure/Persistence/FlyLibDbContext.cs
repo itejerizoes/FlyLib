@@ -29,7 +29,7 @@ namespace FlyLib.Infrastructure.Persistence
                 entity.Property(c => c.Name)
                     .IsRequired()
                     .HasMaxLength(100);
-                entity.Property(c => c.Iso2)
+                entity.Property(c => c.IsoCode)
                     .HasMaxLength(2);
 
                 entity.HasMany(c => c.Provinces)

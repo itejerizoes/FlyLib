@@ -10,30 +10,29 @@ namespace FlyLib.Tests.Utilities
         public static void Initialize(FlyLibDbContext context)
         {
             if (context.Countries.Any())
-                return; // Ya hay datos
+                return;
 
             // =========================
-            // Crear países
+            // Países
             // =========================
             var argentina = new Country("Argentina");
             var chile = new Country("Chile");
             var peru = new Country("Peru");
 
             context.Countries.AddRange(argentina, chile, peru);
-            context.SaveChanges(); // <- Genera CountryId
+            context.SaveChanges();
 
             // =========================
-            // Crear provincias
+            // Provincias (solo Argentina y Perú, no Chile)
             // =========================
             var buenosAires = new Province("Buenos Aires") { Country = argentina };
-            var santiago = new Province("Santiago") { Country = chile };
             var lima = new Province("Lima") { Country = peru };
 
-            context.Provinces.AddRange(buenosAires, santiago, lima);
-            context.SaveChanges(); // <- Genera ProvinceId
+            context.Provinces.AddRange(buenosAires, lima);
+            context.SaveChanges();
 
             // =========================
-            // Crear usuario de prueba
+            // Usuario de prueba
             // =========================
             var user = new User("testuser")
             {
@@ -41,23 +40,23 @@ namespace FlyLib.Tests.Utilities
                 AuthProvider = "Test"
             };
             context.Users.Add(user);
-            context.SaveChanges(); // <- Genera UserId
+            context.SaveChanges();
 
             // =========================
-            // Crear visita vinculada a la provincia y al usuario
+            // Visita (solo en Perú)
             // =========================
-            var visited = new Visited(santiago.ProvinceId)
+            var visited = new Visited(lima.ProvinceId)
             {
-                Province = santiago,
+                Province = lima,
                 User = user,
                 VisitedAt = DateTime.UtcNow,
                 Description = "Visita de prueba"
             };
             context.Visiteds.Add(visited);
-            context.SaveChanges(); // <- Genera VisitedId
+            context.SaveChanges();
 
             // =========================
-            // Crear fotos asociadas a la visita
+            // Fotos asociadas a la visita
             // =========================
             var photo1 = new Photo("http://example.com/photo1.jpg") { Visited = visited };
             var photo2 = new Photo("http://example.com/photo2.jpg") { Visited = visited };

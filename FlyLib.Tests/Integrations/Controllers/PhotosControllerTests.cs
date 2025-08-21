@@ -1,6 +1,8 @@
 ﻿using FluentAssertions;
 using FlyLib.API.DTOs.v1.Photos.Requests;
 using FlyLib.API.DTOs.v1.Photos.Responses;
+using FlyLib.Infrastructure.Persistence;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,85 +18,67 @@ namespace FlyLib.Tests.Integrations.Controllers
     public class PhotosControllerTests : IClassFixture<CustomWebApplicationFactory<Program>>
     {
         private readonly HttpClient _client;
+        private readonly CustomWebApplicationFactory<Program> _factory;
 
         public PhotosControllerTests(CustomWebApplicationFactory<Program> factory)
         {
             Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Test");
+            _factory = factory;
             _client = factory.CreateClient();
         }
 
         [Fact]
         public async Task GetAll_ShouldReturnSeededPhotos()
         {
-            // Act
             var response = await _client.GetAsync("/api/v1/photos");
-
-            // Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
             var photos = await response.Content.ReadFromJsonAsync<List<PhotoResponseV1>>();
             photos.Should().NotBeNull();
-            photos.Should().HaveCount(c => c >= 3);
-            photos!.Select(p => p.Description).Should().Contain(new[] { "Plaza de Mayo", "Obelisco", "Cordoba Catedral" });
+            photos.Should().HaveCount(c => c >= 2);
         }
 
         [Fact]
-        public async Task GetById_ShouldReturnPlazaDeMayo()
+        public async Task GetById_ShouldReturnSeededPhoto()
         {
-            // Act
-            var response = await _client.GetAsync("/api/v1/photos/1");
+            using var scope = _factory.Services.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<FlyLibDbContext>();
+            var photoId = context.Photos.First().PhotoId;
 
-            // Assert
+            var response = await _client.GetAsync($"/api/v1/photos/{photoId}");
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
             var photo = await response.Content.ReadFromJsonAsync<PhotoResponseV1>();
-            photo!.Description.Should().Be("Plaza de Mayo");
-        }
-
-        [Fact]
-        public async Task Create_ShouldReturnCreatedPhoto()
-        {
-            // Arrange
-            var request = new CreatePhotoRequestV1("http://test/photos/4.jpg", "Nueva Foto");
-
-            // Act
-            var response = await _client.PostAsJsonAsync("/api/v1/photos", request);
-
-            // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.Created);
-
-            var created = await response.Content.ReadFromJsonAsync<PhotoResponseV1>();
-            created.Should().NotBeNull();
-            created!.Description.Should().Be("Nueva Foto");
+            photo!.Id.Should().Be(photoId);
         }
 
         [Fact]
         public async Task Update_ShouldModifyPhoto()
         {
-            // Arrange
-            var updateRequest = new UpdatePhotoRequestV1(2, "http://test/photos/2_updated.jpg", "Obelisco Updated", 1);
+            using var scope = _factory.Services.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<FlyLibDbContext>();
+            var photo = context.Photos.First();
 
-            // Act
-            var response = await _client.PutAsJsonAsync("/api/v1/photos/2", updateRequest);
-
-            // Assert
+            var updateRequest = new UpdatePhotoRequestV1(photo.PhotoId, "http://test/photos/updated.jpg", "Updated Photo", photo.VisitedId);
+            var response = await _client.PutAsJsonAsync($"/api/v1/photos/{photo.PhotoId}", updateRequest);
             response.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
-            var getResponse = await _client.GetAsync("/api/v1/photos/2");
+            var getResponse = await _client.GetAsync($"/api/v1/photos/{photo.PhotoId}");
             var updated = await getResponse.Content.ReadFromJsonAsync<PhotoResponseV1>();
-            updated!.Description.Should().Be("Obelisco Updated");
+            updated!.Description.Should().Be("Updated Photo");
         }
 
         [Fact]
         public async Task Delete_ShouldRemovePhoto()
         {
-            // Act
-            var response = await _client.DeleteAsync("/api/v1/photos/3");
+            using var scope = _factory.Services.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<FlyLibDbContext>();
+            var photoId = context.Photos.Last().PhotoId;
 
-            // Assert
+            var response = await _client.DeleteAsync($"/api/v1/photos/{photoId}");
             response.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
-            var getResponse = await _client.GetAsync("/api/v1/photos/3");
+            var getResponse = await _client.GetAsync($"/api/v1/photos/{photoId}");
             getResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
         }
     }

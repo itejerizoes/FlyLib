@@ -1,9 +1,11 @@
 ﻿using FluentAssertions;
 using FlyLib.Application.Provinces.DTOs;
 using FlyLib.Application.Provinces.Queries.GetProvinceById;
+using FlyLib.Application.Visiteds.DTOs;
 using FlyLib.Domain.Abstractions;
 using FlyLib.Domain.Entities;
 using Moq;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -19,7 +21,7 @@ namespace FlyLib.Tests.Unit.Provinces
             var mapper = new Mock<AutoMapper.IMapper>();
 
             repo.Setup(r => r.GetByIdAsync(1, default)).ReturnsAsync(province);
-            mapper.Setup(m => m.Map<ProvinceDto>(province)).Returns(new ProvinceDto(1, "Buenos Aires", 1));
+            mapper.Setup(m => m.Map<ProvinceDto>(province)).Returns(new ProvinceDto(1, "Buenos Aires", 1, new List<VisitedDto>()));
 
             var handler = new GetProvinceByIdQueryHandler(repo.Object, mapper.Object);
 

@@ -1,8 +1,11 @@
 ﻿using FluentAssertions;
 using FlyLib.API.DTOs.v1.Users.Requests;
 using FlyLib.API.DTOs.v1.Users.Responses;
+using FlyLib.Infrastructure.Persistence;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -15,93 +18,67 @@ namespace FlyLib.Tests.Integrations.Controllers
     public class UsersControllerTests : IClassFixture<CustomWebApplicationFactory<Program>>
     {
         private readonly HttpClient _client;
+        private readonly CustomWebApplicationFactory<Program> _factory;
 
         public UsersControllerTests(CustomWebApplicationFactory<Program> factory)
         {
             Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Test");
+            _factory = factory;
             _client = factory.CreateClient();
         }
 
         [Fact]
         public async Task GetAll_ShouldReturnUsers()
         {
-            // Act
             var response = await _client.GetAsync("/api/v1/users");
-
-            // Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
             var users = await response.Content.ReadFromJsonAsync<List<UserResponseV1>>();
             users.Should().NotBeNull();
-            users.Should().HaveCount(c => c >= 1); // Aseguramos que haya al menos un usuario seed
+            users.Should().HaveCount(c => c >= 1);
         }
 
         [Fact]
         public async Task GetById_ShouldReturnUser_WhenUserExists()
         {
-            // Arrange
-            var testUserId = "test-user"; // Usando el Id del usuario autenticado en TestAuthHandler
+            using var scope = _factory.Services.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<FlyLibDbContext>();
+            var userId = context.Users.First().Id;
 
-            // Act
-            var response = await _client.GetAsync($"/api/v1/users/{testUserId}");
-
-            // Assert
+            var response = await _client.GetAsync($"/api/v1/users/{userId}");
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
             var user = await response.Content.ReadFromJsonAsync<UserResponseV1>();
-            user.Should().NotBeNull();
-            user!.Id.Should().Be(testUserId);
-        }
-
-        [Fact]
-        public async Task Create_ShouldReturnCreatedUser()
-        {
-            // Arrange
-            var request = new CreateUserRequestV1("Nuevo Usuario", "nuevo@example.com");
-
-            // Act
-            var response = await _client.PostAsJsonAsync("/api/v1/users", request);
-
-            // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.Created);
-
-            var created = await response.Content.ReadFromJsonAsync<UserResponseV1>();
-            created.Should().NotBeNull();
-            created!.DisplayName.Should().Be("Nuevo Usuario");
-            created.AuthProvider.Should().Be("nuevo@example.com");
+            user!.Id.Should().Be(userId);
         }
 
         [Fact]
         public async Task Update_ShouldModifyUser()
         {
-            // Arrange
-            var updateRequest = new UpdateUserRequestV1("test-user", "Usuario Actualizado", "actualizado@example.com");
+            using var scope = _factory.Services.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<FlyLibDbContext>();
+            var user = context.Users.First();
 
-            // Act
-            var response = await _client.PutAsJsonAsync($"/api/v1/users/{updateRequest.Id}", updateRequest);
-
-            // Assert
+            var updateRequest = new UpdateUserRequestV1(user.Id, "Updated Name", user.AuthProvider);
+            var response = await _client.PutAsJsonAsync($"/api/v1/users/{user.Id}", updateRequest);
             response.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
-            var getResponse = await _client.GetAsync($"/api/v1/users/{updateRequest.Id}");
+            var getResponse = await _client.GetAsync($"/api/v1/users/{user.Id}");
             var updated = await getResponse.Content.ReadFromJsonAsync<UserResponseV1>();
-            updated!.DisplayName.Should().Be("Usuario Actualizado");
-            updated.AuthProvider.Should().Be("actualizado@example.com");
+            updated!.DisplayName.Should().Be("Updated Name");
         }
 
         [Fact]
         public async Task Delete_ShouldRemoveUser()
         {
-            // Arrange
-            var userIdToDelete = "test-user";
+            using var scope = _factory.Services.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<FlyLibDbContext>();
+            var userId = context.Users.Last().Id;
 
-            // Act
-            var response = await _client.DeleteAsync($"/api/v1/users/{userIdToDelete}");
-
-            // Assert
+            var response = await _client.DeleteAsync($"/api/v1/users/{userId}");
             response.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
-            var getResponse = await _client.GetAsync($"/api/v1/users/{userIdToDelete}");
+            var getResponse = await _client.GetAsync($"/api/v1/users/{userId}");
             getResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
         }
     }

@@ -15,7 +15,7 @@ namespace FlyLib.Application.Photos.Queries.GetAllPhotos
 
         public async Task<IEnumerable<PhotoDto>> Handle(GetAllPhotosQuery request, CancellationToken ct)
         {
-            var items = await _repo.GetAllAsync(ct);
+            var items = await _repo.GetAllAsync(ct: ct);
             return items.Select(_mapper.Map<PhotoDto>);
         }
     }

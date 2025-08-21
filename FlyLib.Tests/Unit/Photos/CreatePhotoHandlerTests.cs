@@ -28,7 +28,7 @@ namespace FlyLib.Tests.Unit.Photos
             var result = await handler.Handle(new CreatePhotoCommand("http://url.com/foto.jpg", "Descripción", 1), default);
 
             result.Should().BeOfType<PhotoDto>();
-            result.PhotoUrl.Should().Be("http://url.com/foto.jpg");
+            result.Url.Should().Be("http://url.com/foto.jpg");
             repo.Verify(r => r.AddAsync(It.IsAny<Photo>(), default), Times.Once);
             uow.Verify(u => u.SaveChangesAsync(default), Times.Once);
         }

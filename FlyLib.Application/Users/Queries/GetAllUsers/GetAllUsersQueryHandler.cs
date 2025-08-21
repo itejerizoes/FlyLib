@@ -15,7 +15,7 @@ namespace FlyLib.Application.Users.Queries.GetAllUsers
 
         public async Task<IEnumerable<UserDto>> Handle(GetAllUsersQuery request, CancellationToken ct)
         {
-            var items = await _repo.GetAllAsync(ct);
+            var items = await _repo.GetAllAsync(ct: ct);
             return items.Select(_mapper.Map<UserDto>);
         }
     }

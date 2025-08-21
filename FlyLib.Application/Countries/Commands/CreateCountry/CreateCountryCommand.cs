@@ -3,5 +3,5 @@ using MediatR;
 
 namespace FlyLib.Application.Countries.Commands.CreateCountry
 {
-    public sealed record CreateCountryCommand(string Name, string? Iso2) : IRequest<CountryDto>;
+    public sealed record CreateCountryCommand(string Name, string? IsoCode) : IRequest<CountryDto>;
 }

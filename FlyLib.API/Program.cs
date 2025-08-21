@@ -34,11 +34,6 @@ if (!isTest)
     builder.Services.AddDbContext<FlyLibDbContext>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 }
-else
-{
-    builder.Services.AddDbContext<FlyLibDbContext>(options =>
-        options.UseInMemoryDatabase("FlyLibTestDb"));
-}
 
 builder.Services.AddFlyLibraryServices(builder.Configuration, useInMemory: isTest);
 
@@ -51,19 +46,17 @@ if (!isTest)
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<FlyLibDbContext>();
+// Middleware de errores (como IMiddleware)
+app.UseMiddleware<GlobalExceptionMiddleware>();
 
-    if (!isTest)
+if (!isTest)
+{
+
+    using (var scope = app.Services.CreateScope())
     {
-        // Solo aplicar migraciones si usamos un proveedor relacional
+        var db = scope.ServiceProvider.GetRequiredService<FlyLibDbContext>();
+
         db.Database.Migrate();
-    }
-    else
-    {
-        // Para InMemory, solo asegurar creación de la base
-        db.Database.EnsureCreated();
     }
 }
 
@@ -94,9 +87,6 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
-
-// Middleware de errores (como IMiddleware)
-app.UseMiddleware<GlobalExceptionMiddleware>();
 
 app.MapControllers();
 

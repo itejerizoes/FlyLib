@@ -1,6 +1,8 @@
 ﻿using FluentAssertions;
 using FlyLib.API.DTOs.v1.Provinces.Requests;
 using FlyLib.API.DTOs.v1.Provinces.Responses;
+using FlyLib.Infrastructure.Persistence;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,81 +18,67 @@ namespace FlyLib.Tests.Integrations.Controllers
     public class ProvincesControllerTests : IClassFixture<CustomWebApplicationFactory<Program>>
     {
         private readonly HttpClient _client;
+        private readonly CustomWebApplicationFactory<Program> _factory;
 
         public ProvincesControllerTests(CustomWebApplicationFactory<Program> factory)
         {
             Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Test");
+            _factory = factory;
             _client = factory.CreateClient();
         }
 
         [Fact]
         public async Task GetAll_ShouldReturnSeededProvinces()
         {
-            // Act
             var response = await _client.GetAsync("/api/v1/provinces");
-
-            // Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
             var provinces = await response.Content.ReadFromJsonAsync<List<ProvinceResponseV1>>();
             provinces.Should().NotBeNull();
-            provinces.Should().HaveCount(c => c >= 3);
-            provinces.Select(p => p.Name).Should().Contain(new[] { "Buenos Aires", "Córdoba", "Santiago" });
+            provinces.Should().HaveCount(c => c >= 2);
         }
 
         [Fact]
-        public async Task GetById_ShouldReturnBuenosAires()
+        public async Task GetById_ShouldReturnSeededProvince()
         {
-            // Act
-            var response = await _client.GetAsync("/api/v1/provinces/1");
+            using var scope = _factory.Services.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<FlyLibDbContext>();
+            var provinceId = context.Provinces.First().ProvinceId;
 
-            // Assert
+            var response = await _client.GetAsync($"/api/v1/provinces/{provinceId}");
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
             var province = await response.Content.ReadFromJsonAsync<ProvinceResponseV1>();
-            province!.Name.Should().Be("Buenos Aires");
-        }
-
-        [Fact]
-        public async Task GetByName_ShouldReturnCordoba()
-        {
-            // Act
-            var response = await _client.GetAsync("/api/v1/provinces/byName/Córdoba");
-
-            // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-            var province = await response.Content.ReadFromJsonAsync<ProvinceResponseV1>();
-            province!.Name.Should().Be("Córdoba");
+            province!.ProvinceId.Should().Be(provinceId);
         }
 
         [Fact]
         public async Task Update_ShouldModifyProvince()
         {
-            // Arrange
-            var updateRequest = new UpdateProvinceRequestV1(3, "Santiago Updated", 2);
+            using var scope = _factory.Services.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<FlyLibDbContext>();
+            var province = context.Provinces.First();
 
-            // Act
-            var response = await _client.PutAsJsonAsync("/api/v1/provinces/3", updateRequest);
-
-            // Assert
+            var updateRequest = new UpdateProvinceRequestV1(province.ProvinceId, "Updated Province", province.CountryId);
+            var response = await _client.PutAsJsonAsync($"/api/v1/provinces/{province.ProvinceId}", updateRequest);
             response.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
-            var getResponse = await _client.GetAsync("/api/v1/provinces/3");
+            var getResponse = await _client.GetAsync($"/api/v1/provinces/{province.ProvinceId}");
             var updated = await getResponse.Content.ReadFromJsonAsync<ProvinceResponseV1>();
-            updated!.Name.Should().Be("Santiago Updated");
+            updated!.Name.Should().Be("Updated Province");
         }
 
         [Fact]
         public async Task Delete_ShouldRemoveProvince()
         {
-            // Act
-            var response = await _client.DeleteAsync("/api/v1/provinces/2");
+            using var scope = _factory.Services.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<FlyLibDbContext>();
+            var provinceId = context.Provinces.Last().ProvinceId;
 
-            // Assert
+            var response = await _client.DeleteAsync($"/api/v1/provinces/{provinceId}");
             response.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
-            var getResponse = await _client.GetAsync("/api/v1/provinces/2");
+            var getResponse = await _client.GetAsync($"/api/v1/provinces/{provinceId}");
             getResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
         }
     }

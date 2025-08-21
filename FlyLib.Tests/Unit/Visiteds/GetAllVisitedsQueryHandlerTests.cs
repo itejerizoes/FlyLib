@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using FlyLib.Application.Photos.DTOs;
 using FlyLib.Application.Visiteds.DTOs;
 using FlyLib.Application.Visiteds.Queries.GetAllVisiteds;
 using FlyLib.Domain.Abstractions;
@@ -7,7 +8,8 @@ using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Linq.Expressions;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -23,9 +25,13 @@ namespace FlyLib.Tests.Unit.Visiteds
             var repo = new Mock<IVisitedRepository>();
             var mapper = new Mock<AutoMapper.IMapper>();
 
-            repo.Setup(r => r.GetAllAsync(default)).ReturnsAsync(visiteds);
+            repo.Setup(r => r.GetAllAsync(
+                It.IsAny<Expression<Func<Visited, bool>>>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<Expression<Func<Visited, object>>[]>()
+            )).ReturnsAsync(visiteds);
             mapper.Setup(m => m.Map<VisitedDto>(It.IsAny<Visited>()))
-                .Returns((Visited v) => new VisitedDto(v.VisitedId, v.UserId, v.ProvinceId, new List<Photo>()));
+                .Returns((Visited v) => new VisitedDto(v.VisitedId, v.UserId, v.ProvinceId, new List<PhotoDto>()));
 
             var handler = new GetAllVisitedsQueryHandler(repo.Object, mapper.Object);
 
@@ -34,7 +40,11 @@ namespace FlyLib.Tests.Unit.Visiteds
             result.Should().NotBeNull();
             result.Should().HaveCount(1);
             result.First().Id.Should().Be(1);
-            repo.Verify(r => r.GetAllAsync(default), Times.Once);
+            repo.Verify(r => r.GetAllAsync(
+                It.IsAny<Expression<Func<Visited, bool>>>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<Expression<Func<Visited, object>>[]>()
+            ), Times.Once);
         }
     }
 }

@@ -1,4 +1,4 @@
 ﻿namespace FlyLib.Application.Photos.DTOs
 {
-    public sealed record PhotoDto(int Id, string PhotoUrl, string? Description, int VisitedId);
+    public sealed record PhotoDto(int PhotoId, string Url, string? Description, int VisitedId);
 }

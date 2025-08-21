@@ -20,21 +20,18 @@ namespace TestFlyLibrary.Tests.Utilities
             builder.ConfigureServices(services =>
             {
                 // =========================
-                // Remover DbContext original
+                // Reemplazar DbContext por InMemory
                 // =========================
-                var descriptor = services.SingleOrDefault(
-                    d => d.ServiceType == typeof(DbContextOptions<FlyLibDbContext>));
-                if (descriptor != null)
-                    services.Remove(descriptor);
+                var dbDescriptor = services.SingleOrDefault(d => d.ServiceType == typeof(DbContextOptions<FlyLibDbContext>));
+                if (dbDescriptor != null) services.Remove(dbDescriptor);
 
-                // =========================
-                // Registrar DbContext InMemory
-                // =========================
                 services.AddDbContext<FlyLibDbContext>(options =>
                     options.UseInMemoryDatabase("FlyLibTestDb"));
 
+                services.AddFlyLibraryServices(new ConfigurationBuilder().Build(), useInMemory: true);
+
                 // =========================
-                // Remover autenticación original (Identity / Jwt)
+                // Remover autenticación original
                 // =========================
                 var authDescriptor = services.SingleOrDefault(
                     d => d.ServiceType == typeof(IAuthenticationSchemeProvider));
@@ -53,25 +50,16 @@ namespace TestFlyLibrary.Tests.Utilities
                     TestAuthHandler.TestScheme, options => { });
 
                 // =========================
-                // Registrar servicios de la librería
-                // =========================
-                services.AddFlyLibraryServices(new Microsoft.Extensions.Configuration.ConfigurationBuilder().Build(), useInMemory: true);
-
-                // =========================
-                // Construir ServiceProvider temporal y semilla de datos
+                // Semilla de datos
                 // =========================
                 var sp = services.BuildServiceProvider();
-                using (var scope = sp.CreateScope())
-                {
-                    var db = scope.ServiceProvider.GetRequiredService<FlyLibDbContext>();
+                using var scope = sp.CreateScope();
+                var db = scope.ServiceProvider.GetRequiredService<FlyLibDbContext>();
 
-                    // Aseguramos la base
-                    db.Database.EnsureDeleted(); // limpia cada test
-                    db.Database.EnsureCreated();
+                db.Database.EnsureDeleted();
+                db.Database.EnsureCreated();
 
-                    // Inicializar datos
-                    SeedData.Initialize(db);
-                }
+                SeedData.Initialize(db);
             });
         }
     }
