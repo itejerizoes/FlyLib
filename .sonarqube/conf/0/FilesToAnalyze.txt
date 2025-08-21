@@ -1,0 +1,15 @@
+﻿C:\Proyectos\FlyLib\FlyLib.Domain\Abstractions\ICountryRepository.cs
+C:\Proyectos\FlyLib\FlyLib.Domain\Abstractions\IPhotoRepository.cs
+C:\Proyectos\FlyLib\FlyLib.Domain\Abstractions\IProvinceRepository.cs
+C:\Proyectos\FlyLib\FlyLib.Domain\Abstractions\IRefreshTokenService.cs
+C:\Proyectos\FlyLib\FlyLib.Domain\Abstractions\IRepository.cs
+C:\Proyectos\FlyLib\FlyLib.Domain\Abstractions\ITokenService.cs
+C:\Proyectos\FlyLib\FlyLib.Domain\Abstractions\IUnitOfWork.cs
+C:\Proyectos\FlyLib\FlyLib.Domain\Abstractions\IUserRepository.cs
+C:\Proyectos\FlyLib\FlyLib.Domain\Abstractions\IVisitedRepository.cs
+C:\Proyectos\FlyLib\FlyLib.Domain\Entities\Country.cs
+C:\Proyectos\FlyLib\FlyLib.Domain\Entities\Photo.cs
+C:\Proyectos\FlyLib\FlyLib.Domain\Entities\Province.cs
+C:\Proyectos\FlyLib\FlyLib.Domain\Entities\RefreshToken.cs
+C:\Proyectos\FlyLib\FlyLib.Domain\Entities\User.cs
+C:\Proyectos\FlyLib\FlyLib.Domain\Entities\Visited.cs
