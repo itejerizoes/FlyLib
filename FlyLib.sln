@@ -13,6 +13,19 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlyLib.Application", "FlyLi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlyLib.Tests", "FlyLib.Tests\FlyLib.Tests.csproj", "{9E88FEB4-B43F-4A87-5D5D-A97717377591}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "infra", "infra", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+	ProjectSection(SolutionItems) = preProject
+		main.bicep = main.bicep
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "modules", "modules", "{29AE2F3C-E6E3-4AFA-B102-6E97A16DB6E4}"
+	ProjectSection(SolutionItems) = preProject
+		appservice.bicep = appservice.bicep
+		keyvault.bicep = keyvault.bicep
+		sqldb.bicep = sqldb.bicep
+		storage.bicep = storage.bicep
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,6 +55,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{29AE2F3C-E6E3-4AFA-B102-6E97A16DB6E4} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F007986C-581F-478F-8B73-12E8C2F3D756}
