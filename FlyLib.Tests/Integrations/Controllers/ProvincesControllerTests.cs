@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using FlyLib.API.DTOs.v1.Countries.Responses;
 using FlyLib.API.DTOs.v1.Provinces.Requests;
 using FlyLib.API.DTOs.v1.Provinces.Responses;
 using FlyLib.Infrastructure.Persistence;
@@ -50,6 +51,18 @@ namespace FlyLib.Tests.Integrations.Controllers
 
             var province = await response.Content.ReadFromJsonAsync<ProvinceResponseV1>();
             province!.ProvinceId.Should().Be(provinceId);
+        }
+
+        [Fact]
+        public async Task GetByName_ShouldReturnChile()
+        {
+            var response = await _client.GetAsync("/api/v1/provinces/byName/Chile");
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            Console.WriteLine(response);
+
+            var province = await response.Content.ReadFromJsonAsync<ProvinceResponseV1>();
+            province!.Name.Should().Be("Chile");
+            Console.WriteLine(province);
         }
 
         [Fact]
