@@ -32,7 +32,7 @@ namespace FlyLib.API.Controllers.v1
         /// <summary>
         /// Obtener todos los países.
         /// </summary>
-        [Authorize(Roles = $"{AppRoles.Admin},{AppRoles.User}")]
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = $"{AppRoles.Admin},{AppRoles.User}")]
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<CountryResponseV1>), 200)]
         public async Task<IActionResult> GetAll()
@@ -44,7 +44,7 @@ namespace FlyLib.API.Controllers.v1
         /// <summary>
         /// Obtener un país por Id.
         /// </summary>
-        [Authorize(Roles = $"{AppRoles.Admin},{AppRoles.User}")]
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = $"{AppRoles.Admin},{AppRoles.User}")]
         [HttpGet("{id:int}")]
         [ProducesResponseType(typeof(CountryResponseV1), 200)]
         [ProducesResponseType(404)]
@@ -59,7 +59,7 @@ namespace FlyLib.API.Controllers.v1
         /// <summary>
         /// Obtener un país por nombre.
         /// </summary>
-        [Authorize(Roles = $"{AppRoles.Admin},{AppRoles.User}")]
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = $"{AppRoles.Admin},{AppRoles.User}")]
         [HttpGet("byName/{name}")]
         [ProducesResponseType(typeof(CountryResponseV1), 200)]
         [ProducesResponseType(404)]
@@ -74,7 +74,7 @@ namespace FlyLib.API.Controllers.v1
         /// <summary>
         /// Registrar un nuevo país.
         /// </summary>
-        [Authorize(Roles = AppRoles.Admin)]
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = AppRoles.Admin)]
         [HttpPost]
         [ProducesResponseType(typeof(CountryResponseV1), 201)]
         [ProducesResponseType(400)]
@@ -90,7 +90,7 @@ namespace FlyLib.API.Controllers.v1
         /// <summary>
         /// Actualizar un país.
         /// </summary>
-        [Authorize(Roles = AppRoles.Admin)]
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = AppRoles.Admin)]
         [HttpPut("{id:int}")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
@@ -113,7 +113,7 @@ namespace FlyLib.API.Controllers.v1
         /// <summary>
         /// Eliminar un país.
         /// </summary>
-        [Authorize(Roles = AppRoles.Admin)]
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = AppRoles.Admin)]
         [HttpDelete("{id:int}")]
         [ProducesResponseType(204)]
         public async Task<IActionResult> Delete(int id)

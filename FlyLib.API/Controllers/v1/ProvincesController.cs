@@ -31,7 +31,7 @@ namespace FlyLib.API.Controllers.v1
         /// <summary>
         /// Obtener todas las provincias.
         /// </summary>
-        [Authorize(Roles = $"{AppRoles.Admin},{AppRoles.User}")]
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = $"{AppRoles.Admin},{AppRoles.User}")]
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<ProvinceResponseV1>), 200)]
         public async Task<IActionResult> GetAll()
@@ -43,7 +43,7 @@ namespace FlyLib.API.Controllers.v1
         /// <summary>
         /// Obtener una provincia por su Id.
         /// </summary>
-        [Authorize(Roles = $"{AppRoles.Admin},{AppRoles.User}")]
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = $"{AppRoles.Admin},{AppRoles.User}")]
         [HttpGet("{id:int}")]
         [ProducesResponseType(typeof(ProvinceResponseV1), 200)]
         [ProducesResponseType(404)]
@@ -58,7 +58,7 @@ namespace FlyLib.API.Controllers.v1
         /// <summary>
         /// Obtener una provincia por su nombre.
         /// </summary>
-        [Authorize(Roles = $"{AppRoles.Admin},{AppRoles.User}")]
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = $"{AppRoles.Admin},{AppRoles.User}")]
         [HttpGet("byName/{name}")]
         [ProducesResponseType(typeof(ProvinceResponseV1), 200)]
         [ProducesResponseType(404)]
@@ -73,7 +73,7 @@ namespace FlyLib.API.Controllers.v1
         /// <summary>
         /// Crear una nueva provincia.
         /// </summary>
-        [Authorize(Roles = AppRoles.Admin)]
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = AppRoles.Admin)]
         [HttpPost]
         [ProducesResponseType(typeof(ProvinceResponseV1), 201)]
         [ProducesResponseType(400)]
@@ -89,7 +89,7 @@ namespace FlyLib.API.Controllers.v1
         /// <summary>
         /// Actualizar una provincia existente.
         /// </summary>
-        [Authorize(Roles = AppRoles.Admin)]
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = AppRoles.Admin)]
         [HttpPut("{id:int}")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
@@ -105,7 +105,7 @@ namespace FlyLib.API.Controllers.v1
         /// <summary>
         /// Eliminar una provincia.
         /// </summary>
-        [Authorize(Roles = AppRoles.Admin)]
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = AppRoles.Admin)]
         [HttpDelete("{id:int}")]
         [ProducesResponseType(204)]
         public async Task<IActionResult> Delete(int id)

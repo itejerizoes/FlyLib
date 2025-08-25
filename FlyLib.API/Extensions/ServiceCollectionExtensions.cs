@@ -63,6 +63,7 @@ namespace FlyLib.API.Extensions
             services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 
             // MediatR + Behaviors
+            services.AddScoped<RefreshTokenService>();
             services.AddMediatR(typeof(Program).Assembly);
             services.AddMediatR(typeof(CreateCountryCommand).Assembly);
             services.AddMediatR(typeof(CreateCountryCommandHandler).Assembly);
@@ -164,7 +165,7 @@ namespace FlyLib.API.Extensions
                         options.TokenValidationParameters = new TokenValidationParameters
                         {
                             ValidateIssuer = true,
-                            ValidateAudience = false,
+                            ValidateAudience = true,
                             ValidateLifetime = true,
                             ValidateIssuerSigningKey = true,
                             ValidIssuer = jwtIssuer,
@@ -177,11 +178,6 @@ namespace FlyLib.API.Extensions
                         options.ClientId = config["Authentication:Google:ClientId"]!;
                         options.ClientSecret = config["Authentication:Google:ClientSecret"]!;
                         options.SignInScheme = IdentityConstants.ExternalScheme;
-                    })
-                    .AddMicrosoftAccount("Microsoft", options =>
-                    {
-                        options.ClientId = config["Authentication:Microsoft:ClientId"]!;
-                        options.ClientSecret = config["Authentication:Microsoft:ClientSecret"]!;
                     });
             }
 
@@ -190,7 +186,7 @@ namespace FlyLib.API.Extensions
             {
                 options.AddPolicy("FrontendCors", policy =>
                 {
-                    policy.WithOrigins("https://flylib-frontend.com") // Cambia por la URL real de tu frontend
+                    policy.WithOrigins("http://localhost:3000") // Cambia por la URL real de tu frontend
                           .AllowAnyHeader()
                           .AllowAnyMethod();
                 });

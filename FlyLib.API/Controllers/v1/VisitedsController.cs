@@ -31,7 +31,7 @@ namespace FlyLib.API.Controllers.v1
         /// <summary>
         /// Obtener todos los usuario visitado provincias.
         /// </summary>
-        [Authorize(Roles = $"{AppRoles.Admin},{AppRoles.User}")]
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = $"{AppRoles.Admin},{AppRoles.User}")]
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<VisitedResponseV1>), 200)]
         public async Task<IActionResult> GetAll()
@@ -44,7 +44,7 @@ namespace FlyLib.API.Controllers.v1
         /// <summary>
         /// Obtener un usuarios visitado provincia por Id.
         /// </summary>
-        [Authorize(Roles = $"{AppRoles.Admin},{AppRoles.User}")]
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = $"{AppRoles.Admin},{AppRoles.User}")]
         [HttpGet("{id:int}")]
         [ProducesResponseType(typeof(VisitedResponseV1), 200)]
         [ProducesResponseType(404)]
@@ -59,7 +59,7 @@ namespace FlyLib.API.Controllers.v1
         /// <summary>
         /// Registrar un nuevo usuarios visitado provincia.
         /// </summary>
-        [Authorize(Roles = $"{AppRoles.Admin},{AppRoles.User}")]
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = $"{AppRoles.Admin},{AppRoles.User}")]
         [HttpPost]
         [ProducesResponseType(typeof(VisitedResponseV1), 201)]
         [ProducesResponseType(400)]
@@ -75,7 +75,7 @@ namespace FlyLib.API.Controllers.v1
         /// <summary>
         /// Actualizar un usuarios visitado provincia.
         /// </summary>
-        [Authorize(Roles = $"{AppRoles.Admin},{AppRoles.User}")]
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = $"{AppRoles.Admin},{AppRoles.User}")]
         [HttpPut("{id:int}")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
@@ -91,7 +91,7 @@ namespace FlyLib.API.Controllers.v1
         /// <summary>
         /// Eliminar un usuarios visitado provincia.
         /// </summary>
-        [Authorize(Roles = $"{AppRoles.Admin},{AppRoles.User}")]
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = $"{AppRoles.Admin},{AppRoles.User}")]
         [HttpDelete("{id:int}")]
         [ProducesResponseType(204)]
         public async Task<IActionResult> Delete(int id)

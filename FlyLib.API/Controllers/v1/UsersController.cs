@@ -30,7 +30,7 @@ namespace FlyLib.API.Controllers.v1
         /// <summary>
         /// Obtener todos los usuarios.
         /// </summary>
-        [Authorize(Roles = $"{AppRoles.Admin},{AppRoles.User}")]
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = $"{AppRoles.Admin},{AppRoles.User}")]
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<UserResponseV1>), 200)]
         public async Task<IActionResult> GetAll()
@@ -42,7 +42,7 @@ namespace FlyLib.API.Controllers.v1
         /// <summary>
         /// Obtener un usuario por su Id.
         /// </summary>
-        [Authorize(Roles = $"{AppRoles.Admin},{AppRoles.User}")]
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = $"{AppRoles.Admin},{AppRoles.User}")]
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(UserResponseV1), 200)]
         [ProducesResponseType(404)]
@@ -57,7 +57,7 @@ namespace FlyLib.API.Controllers.v1
         /// <summary>
         /// Crear un nuevo usuario.
         /// </summary>
-        [Authorize(Roles = $"{AppRoles.Admin},{AppRoles.User}")]
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = $"{AppRoles.Admin},{AppRoles.User}")]
         [HttpPost]
         [ProducesResponseType(typeof(UserResponseV1), 201)]
         [ProducesResponseType(400)]
@@ -73,7 +73,7 @@ namespace FlyLib.API.Controllers.v1
         /// <summary>
         /// Actualizar un usuario existente.
         /// </summary>
-        [Authorize(Roles = $"{AppRoles.Admin},{AppRoles.User}")]
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = $"{AppRoles.Admin},{AppRoles.User}")]
         [HttpPut("{id}")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
@@ -89,7 +89,7 @@ namespace FlyLib.API.Controllers.v1
         /// <summary>
         /// Eliminar un usuario.
         /// </summary>
-        [Authorize(Roles = AppRoles.Admin)]
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = AppRoles.Admin)]
         [HttpDelete("{id}")]
         [ProducesResponseType(204)]
         public async Task<IActionResult> Delete(string id)

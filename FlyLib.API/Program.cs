@@ -4,6 +4,7 @@ using FlyLib.API.Configurations;
 using FlyLib.API.Extensions;
 using FlyLib.API.Middleware;
 using FlyLib.Infrastructure.Persistence;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
@@ -26,6 +27,20 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.ConfigureOptions<ConfigureSwaggerOptions>();
 
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.Events.OnRedirectToLogin = context =>
+    {
+        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+        return Task.CompletedTask;
+    };
+    options.Events.OnRedirectToAccessDenied = context =>
+    {
+        context.Response.StatusCode = StatusCodes.Status403Forbidden;
+        return Task.CompletedTask;
+    };
+});
+
 // NUESTROS SERVICIOS
 var isTest = builder.Environment.EnvironmentName == "Test";
 
@@ -37,6 +52,7 @@ if (!isTest)
     builder.Services.AddFlyLibraryServices(builder.Configuration, useInMemory: isTest);
 }
 
+
 if (!isTest)
 {
     builder.Services.AddDefaultCorrelationId();
@@ -46,19 +62,28 @@ if (!isTest)
 
 var app = builder.Build();
 
-// Middleware de errores (como IMiddleware)
-app.UseMiddleware<GlobalExceptionMiddleware>();
-
 if (!isTest)
 {
-
     using (var scope = app.Services.CreateScope())
     {
         var db = scope.ServiceProvider.GetRequiredService<FlyLibDbContext>();
-
         db.Database.Migrate();
+
+        // Crear roles si no existen
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+        string[] roles = new[] { "Admin", "User" };
+        foreach (var role in roles)
+        {
+            if (!await roleManager.RoleExistsAsync(role))
+            {
+                await roleManager.CreateAsync(new IdentityRole(role));
+            }
+        }
     }
 }
+
+// Middleware de errores (como IMiddleware)
+app.UseMiddleware<GlobalExceptionMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {

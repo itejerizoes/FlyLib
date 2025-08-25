@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
+using System.Data;
 using System.Security.Claims;
 
 namespace FlyLib.API.Controllers.v1
@@ -64,6 +65,9 @@ namespace FlyLib.API.Controllers.v1
                 await _userManager.CreateAsync(user);
             }
 
+            // Asignar el rol "User" al usuario recién creado
+            await _userManager.AddToRoleAsync(user, "User");
+
             // Emitir JWT propio
             var jwt = await _tokenService.CreateToken(user);
 
@@ -75,7 +79,11 @@ namespace FlyLib.API.Controllers.v1
             // Limpiar el login externo
             await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
 
-            return Ok(new { token = jwt, refreshToken = refreshToken.Token, returnUrl });
+            var roles = await _userManager.GetRolesAsync(user);
+
+            // Construye la URL de redirección al frontend
+            var frontendUrl = $"http://localhost:3000{returnUrl}?token={jwt}&refreshToken={refreshToken.Token}&displayName={user.DisplayName}&roles={string.Join(",", roles)}";
+            return Redirect(frontendUrl);
         }
 
         [HttpPost("login")]
@@ -90,7 +98,15 @@ namespace FlyLib.API.Controllers.v1
             _db.RefreshTokens.Add(refreshToken);
             await _db.SaveChangesAsync();
 
-            return Ok(new { token = jwt, refreshToken = refreshToken.Token });
+            var roles = await _userManager.GetRolesAsync(user);
+
+            return Ok(new
+            {
+                token = jwt,
+                refreshToken = refreshToken.Token,
+                displayName = user.DisplayName,
+                roles
+            });
         }
 
         [HttpPost("refresh")]
@@ -109,7 +125,60 @@ namespace FlyLib.API.Controllers.v1
             _db.RefreshTokens.Add(newRefreshToken);
             await _db.SaveChangesAsync();
 
-            return Ok(new { token = jwt, refreshToken = newRefreshToken.Token });
+            var roles = await _userManager.GetRolesAsync(user);
+
+            return Ok(new
+            {
+                token = jwt,
+                refreshToken = newRefreshToken.Token,
+                displayName = user.DisplayName,
+                roles
+            });
+        }
+
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] RegisterRequestV1 request)
+        {
+            // Validación básica
+            if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
+                return BadRequest("Email y contraseña son requeridos.");
+
+            var user = new User(request.DisplayName)
+            {
+                UserName = request.Email,
+                Email = request.Email,
+                DisplayName = request.DisplayName,
+                AuthProvider = "Email"
+            };
+
+            var result = await _userManager.CreateAsync(user, request.Password);
+
+            if (!result.Succeeded)
+                return BadRequest(new
+                    {
+                        errors = result.Errors.Select(e => new { code = e.Code, description = e.Description })
+                    });
+
+            // Asignar el rol "User" al usuario recién creado
+            await _userManager.AddToRoleAsync(user, "User");
+
+            // Emitir JWT propio
+            var jwt = await _tokenService.CreateToken(user);
+
+            // Emitir refresh token
+            var refreshToken = _refreshTokenService.GenerateToken(user.Id);
+            _db.RefreshTokens.Add(refreshToken);
+            await _db.SaveChangesAsync();
+
+            var roles = await _userManager.GetRolesAsync(user);
+
+            return Ok(new
+            {
+                token = jwt,
+                refreshToken = refreshToken.Token,
+                displayName = user.DisplayName,
+                roles
+            });
         }
     }
 }

@@ -31,7 +31,7 @@ namespace FlyLib.API.Controllers.v1
         /// <summary>
         /// Obtener todos los visit photos.
         /// </summary>
-        [Authorize(Roles = $"{AppRoles.Admin},{AppRoles.User}")]
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = $"{AppRoles.Admin},{AppRoles.User}")]
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<PhotoResponseV1>), 200)]
         public async Task<IActionResult> GetAll()
@@ -43,7 +43,7 @@ namespace FlyLib.API.Controllers.v1
         /// <summary>
         /// Obtener un visit photo por su Id.
         /// </summary>
-        [Authorize(Roles = $"{AppRoles.Admin},{AppRoles.User}")]
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = $"{AppRoles.Admin},{AppRoles.User}")]
         [HttpGet("{id:int}")]
         [ProducesResponseType(typeof(PhotoResponseV1), 200)]
         [ProducesResponseType(404)]
@@ -58,7 +58,7 @@ namespace FlyLib.API.Controllers.v1
         /// <summary>
         /// Crear un nuevo visit photo.
         /// </summary>
-        [Authorize(Roles = $"{AppRoles.Admin},{AppRoles.User}")]
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = $"{AppRoles.Admin},{AppRoles.User}")]
         [HttpPost]
         [ProducesResponseType(typeof(PhotoResponseV1), 201)]
         [ProducesResponseType(400)]
@@ -74,7 +74,7 @@ namespace FlyLib.API.Controllers.v1
         /// <summary>
         /// Actualizar una visit photo existente.
         /// </summary>
-        [Authorize(Roles = $"{AppRoles.Admin},{AppRoles.User}")]
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = $"{AppRoles.Admin},{AppRoles.User}")]
         [HttpPut("{id:int}")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
@@ -90,7 +90,7 @@ namespace FlyLib.API.Controllers.v1
         /// <summary>
         /// Eliminar una visit photo.
         /// </summary>
-        [Authorize(Roles = $"{AppRoles.Admin},{AppRoles.User}")]
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = $"{AppRoles.Admin},{AppRoles.User}")]
         [HttpDelete("{id:int}")]
         [ProducesResponseType(204)]
         public async Task<IActionResult> Delete(int id)
